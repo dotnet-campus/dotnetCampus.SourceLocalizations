@@ -1,0 +1,25 @@
+<Project>
+
+  <Import Project="build\Version.props" />
+
+  <!-- 框架和语言信息 -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts</ArtifactsPath>
+    <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>
+  </PropertyGroup>
+
+  <!--库信息 -->
+  <PropertyGroup>
+    <Description>使用源生成器为你的项目增加本地化源代码，使得你可以利用 IDE 的智能感知来使用多语言。</Description>
+    <Authors>dotnet-campus</Authors>
+    <Company>dotnet campus（.NET 职业技术学院）</Company>
+    <Copyright>Copyright $([System.DateTime]::Now.ToString(`yyyy`)) &#169; dotnet campus, All Rights Reserved.</Copyright>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/dotnet-campus/dotnetCampus.SourceLocalizations</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/dotnet-campus/dotnetCampus.SourceLocalizations</PackageProjectUrl>
+  </PropertyGroup>
+
+</Project>

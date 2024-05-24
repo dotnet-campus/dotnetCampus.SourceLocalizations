@@ -1,0 +1,3 @@
+A.A1: "文本"
+A.A2: "错误码：{errorCode:int}"
+A.A3: "错误：{error}"
