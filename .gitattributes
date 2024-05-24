@@ -1,0 +1,57 @@
+# Auto detect text files and perform LF normalization
+* text=false 
+
+# Custom for Visual Studio
+*.cs     diff=csharp
+*.sln    merge=text
+*.csproj merge=text
+*.vbproj merge=text
+*.fsproj merge=text
+*.dbproj merge=text
+
+# Standard to msysgit
+*.doc	 diff=astextplain
+*.DOC	 diff=astextplain
+*.docx diff=astextplain
+*.DOCX diff=astextplain
+*.dot  diff=astextplain
+*.DOT  diff=astextplain
+*.pdf  diff=astextplain
+*.PDF	 diff=astextplain
+*.rtf	 diff=astextplain
+*.RTF	 diff=astextplain
+
+# ignore file
+
+*.mp3	-diff
+*.wav	-diff
+*.enas	-diff
+*.png	-diff
+*.jpg	-diff
+*.psd	-diff
+*.gif	-diff
+
+# binary
+*.avi       binary
+*.bmp       binary
+*.exr       binary
+*.ico       binary
+*.jpeg      binary
+*.jpg       binary
+*.png       binary
+
+*.a         binary
+*.so        binary
+*.dll       binary
+*.jar       binary
+
+*.pdf       binary
+*.pbxproj   binary
+*.vec       binary
+*.doc       binary
+*.dia       binary
+
+# CR/LF
+
+*.bat       text eol=crlf
+*.sh        text eol=lf
