@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- TargetFramework -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <!-- Project Information -->
+  <PropertyGroup>
+    <Deterministic>true</Deterministic>
+    <PackageId>dotnetCampus.SourceLocalizations</PackageId>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!--
+      因为有 MSBuild Tasks 打包到 tasks 文件夹下，所以忽略不在 lib 文件夹的警告。
+      详见：https://learn.microsoft.com/zh-cn/visualstudio/msbuild/tutorial-custom-task-code-generation
+    -->
+    <NoWarn>$(NoWarn);NU5100</NoWarn>
+  </PropertyGroup>
+
+  <!-- 在 GitHub Action -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <!-- Package Reference -->
+  <ItemGroup>
+    <PackageReference Include="dotnetCampus.LatestCSharpFeatures" Version="12.0.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="YamlDotNet" Version="15.1.4" ReferenceOutputAssembly="false" PrivateAssets="all" GeneratePathProperty="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\artifacts\bin\dotnetCampus.Localizations.Analyzer\$(Configuration)\**\*" Link="Package\analyzers\dotnet\cs\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="..\..\artifacts\bin\dotnetCampus.Localizations.Tasks\$(Configuration)\**\*" Link="Package\tasks\netstandard2.0\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <!-- 生成 NuGet 包。 -->
+  <Target Name="_IncludeAllDependencies" BeforeTargets="_GetPackageFiles">
+    <ItemGroup>
+      <Content Include="Package\build\Package.props" Pack="True" PackagePath="build\$(PackageId).props" />
+      <Content Include="Package\build\Package.targets" Pack="True" PackagePath="build\$(PackageId).targets" />
+      <Content Include="..\..\artifacts\bin\dotnetCampus.Localizations.Analyzer\$(Configuration)\**\*" Pack="True" PackagePath="analyzers\dotnet\cs" />
+      <Content Include="$(PKGYamlDotNet)\lib\netstandard2.0\YamlDotNet.dll" Pack="True" PackagePath="analyzers\dotnet\cs\YamlDotNet.dll" />
+    </ItemGroup>
+  </Target>
+
+</Project>
