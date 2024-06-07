@@ -21,7 +21,7 @@ public class TomlLocalizationFileReader : ILocalizationFileReader
     {
         if (tomlValue is TomlString tomlString)
         {
-            var (types, value) = ConvertTamlValueToCodeValue(tomlString.Value);
+            var (types, value) = ConvertTomlValueToCodeValue(tomlString.Value);
             yield return new LocalizationItem(
                 key,
                 value,
@@ -47,14 +47,14 @@ public class TomlLocalizationFileReader : ILocalizationFileReader
     }
 
     /// <summary>
-    /// 将 YAML 文件中的语言项值转换为适用于 C# 代码中可格式化字符串的值。
+    /// 将 TOML 文件中的语言项值转换为适用于 C# 代码中可格式化字符串的值。
     /// </summary>
     /// <example>
-    /// 从 YAML 文件中读取的语言项值为 <c>"{name:string} is {age:int} years old."</c>，转换为 <c>([string, int],"{0} is {1} years old.")</c>。
+    /// 从 TOML 文件中读取的语言项值为 <c>"{name:string} is {age:int} years old."</c>，转换为 <c>([string, int],"{0} is {1} years old.")</c>。
     /// </example>
-    /// <param name="value">YAML 文件中的语言项值。</param>
+    /// <param name="value">TOML 文件中的语言项值。</param>
     /// <returns>适用于 C# 代码中可格式化字符串的值。</returns>
-    private static (ImmutableArray<string> Types, string Value) ConvertTamlValueToCodeValue(string value)
+    private static (ImmutableArray<string> Types, string Value) ConvertTomlValueToCodeValue(string value)
     {
         var regex = new Regex(@"\{(?<name>[^{}:]+)(?::(?<type>[^{}:]+))?\}");
         var matches = regex.Matches(value);
