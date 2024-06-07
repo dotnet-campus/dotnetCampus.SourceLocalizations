@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using dotnetCampus.Localizations.Assets.Templates;
 using dotnetCampus.Localizations.Utils.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using static dotnetCampus.Localizations.Generators.ModelProviding.IetfLanguageTagExtensions;
 
 namespace dotnetCampus.Localizations.Generators.CodeTransforming;
@@ -67,7 +68,7 @@ namespace {rootNamespace}.Localizations;
                 {
                     return $"""
     /// <summary>
-    /// {x.Item.SampleValue}
+    /// {ConvertValueToComment(x.Item.SampleValue)}
     /// </summary>
     LocalizedString {x.IdentifierKey} => this.Get0("{x.Item.Key}");
 """;
@@ -77,7 +78,7 @@ namespace {rootNamespace}.Localizations;
                     var genericTypes = string.Join(", ", x.Item.ValueArgumentTypes);
                     return $"""
     /// <summary>
-    /// {x.Item.SampleValue}
+    /// {ConvertValueToComment(x.Item.SampleValue)}
     /// </summary>
     LocalizedString<{genericTypes}> {x.IdentifierKey} => this.Get{x.Item.ValueArgumentTypes.Length}<{genericTypes}>("{x.Item.Key}");
 """;
@@ -97,6 +98,17 @@ public interface ILocalized_{{nodeTypeName}} : ILocalizedStringProvider
 }
 {{string.Concat(node.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode(x, depth + 1)))}}
 """;
+    }
+
+    private string ConvertValueToComment(string? value)
+    {
+        if (string.IsNullOrEmpty(value) || !value.Contains('\n'))
+        {
+            return value ?? "";
+        }
+
+        var lines = value!.Replace("\r", "").Split('\n');
+        return string.Join("<br/>\n    /// ", lines);
     }
 
     #endregion
@@ -121,7 +133,8 @@ public interface ILocalized_{{nodeTypeName}} : ILocalizedStringProvider
 
     private string ConvertKeyValueToValueCodeLine(string key, string value)
     {
-        return $"\n        {{ \"{key}\", \"{value}\" }},";
+        var escapedValue = SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(value)).ToFullString();
+        return $"\n        {{ \"{key}\", {escapedValue} }},";
     }
 
     private IEnumerable<string> EnumerateConvertTreeNodeToInterfaceNames(IEnumerable<LocalizationTreeNode> nodes)
