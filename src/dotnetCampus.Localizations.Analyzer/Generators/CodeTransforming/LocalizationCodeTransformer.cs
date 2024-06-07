@@ -110,6 +110,9 @@ public interface ILocalized_{{nodeTypeName}} : ILocalizedStringProvider
         var code = template.Content
             .Replace($"namespace {template.Namespace};", $"namespace {rootNamespace}.Localizations;")
             .Replace($"class {nameof(LocalizationValues)}", $"class {nameof(LocalizationValues)}_{typeName}")
+            .Replace(
+                $" : ILocalized_Root",
+                $" : ILocalized_Root{string.Concat(EnumerateConvertTreeNodeToInterfaceNames(Tree.Children).Select(x => $",\n    ILocalized_Root_{x}"))}")
             .Replace("""IetfLanguageTag => "default";""", $"""IetfLanguageTag => "{ietfLanguageTag}";""");
         var lines = LocalizationItems.Select(x => ConvertKeyValueToValueCodeLine(x.Key, x.Value));
         code = TemplateRegexes.FlagRegex.Replace(code, string.Concat(lines));
@@ -119,6 +122,26 @@ public interface ILocalized_{{nodeTypeName}} : ILocalizedStringProvider
     private string ConvertKeyValueToValueCodeLine(string key, string value)
     {
         return $"\n        {{ \"{key}\", \"{value}\" }},";
+    }
+
+    private IEnumerable<string> EnumerateConvertTreeNodeToInterfaceNames(IEnumerable<LocalizationTreeNode> nodes)
+    {
+        foreach (var node in nodes)
+        {
+            if (node.Children.Count is 0)
+            {
+                // 叶子节点，不提供接口。
+            }
+            else
+            {
+                // 非叶子节点，提供接口。
+                yield return string.Join("_", node.FullIdentifierKey);
+                foreach (var child in EnumerateConvertTreeNodeToInterfaceNames(node.Children))
+                {
+                    yield return child;
+                }
+            }
+        }
     }
 
     #endregion
