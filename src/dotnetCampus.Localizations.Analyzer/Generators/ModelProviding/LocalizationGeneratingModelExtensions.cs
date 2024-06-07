@@ -14,13 +14,20 @@ public static class LocalizationGeneratingModelExtensions
 {
     public static IncrementalValuesProvider<LocalizationFileModel> SelectLocalizationFileModels(this IncrementalValuesProvider<AdditionalText> provider) =>
         provider.Where(x =>
-                x.Path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)
+                x.Path.EndsWith(".toml", StringComparison.OrdinalIgnoreCase)
+                || x.Path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)
                 || x.Path.EndsWith(".yml", StringComparison.OrdinalIgnoreCase))
             .Select((x, ct) =>
             {
                 var name = Path.GetFileNameWithoutExtension(x.Path);
+                var extension = Path.GetExtension(x.Path) switch
+                {
+                    ".toml" => "toml",
+                    ".yaml" or ".yml" => "yaml",
+                    _ => throw new NotSupportedException($"Unsupported localization file format: {x.Path}"),
+                };
                 var text = x.GetText(ct)!.ToString();
-                return new LocalizationFileModel("yaml", name, text);
+                return new LocalizationFileModel(extension, name, text);
             });
 
     /// <summary>
