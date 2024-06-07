@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <LocalizationFile Include="Localizations\**\*.yaml" />
+    <LocalizationFile Include="Localizations\**\*.toml" />
   </ItemGroup>
 
 </Project>

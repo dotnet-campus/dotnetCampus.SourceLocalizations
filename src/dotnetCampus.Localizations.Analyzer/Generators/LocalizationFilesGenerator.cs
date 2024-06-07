@@ -23,10 +23,15 @@ public class LocalizationFilesGenerator : IIncrementalGenerator
 
     private void Execute(SourceProductionContext context, (LocalizationFileModel Left, ImmutableArray<LocalizationGeneratingModel> Right) modelTuple)
     {
-        var ((_, ietfLanguageTag, textContent), localizationGeneratingModels) = modelTuple;
+        var ((model, ietfLanguageTag, textContent), localizationGeneratingModels) = modelTuple;
         var options = localizationGeneratingModels.FirstOrDefault();
 
-        var transformer = new LocalizationCodeTransformer(textContent, new YamlLocalizationFileReader());
+        var transformer = new LocalizationCodeTransformer(textContent, model switch
+        {
+            "toml" => new TomlLocalizationFileReader(),
+            "yaml" => new YamlLocalizationFileReader(),
+            _ => throw new NotSupportedException($"Unsupported localization file format: {model}"),
+        });
         var code = transformer.ToImplementationCodeText(options.Namespace, ietfLanguageTag);
         context.AddSource($"{nameof(LocalizationValues)}.{ietfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
 
