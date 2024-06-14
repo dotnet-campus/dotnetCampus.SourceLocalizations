@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -13,17 +13,10 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.9.2" PrivateAssets="all" />
-    <PackageReference Include="Samboy063.Tomlet" Version="5.3.1" PrivateAssets="all" />
-    <PackageReference Include="YamlDotNet" Version="15.1.4" PrivateAssets="all" />
   </ItemGroup>
-
+  
   <ItemGroup>
-    <!-- 提供给分析器使用（主要是为了避免使用常量字符串），或单纯为了让分析器项目编译通过。 -->
-    <Compile Include="..\dotnetCampus.Localizations\*.cs" Link="Assets\Sources\%(FileName).g.cs" />
-
-    <!-- 提供给源生成器使用。 -->
-    <EmbeddedResource Include="Assets\Sources\**\*.cs" />
-    <EmbeddedResource Include="Assets\Templates\**\*.cs" />
+    <Compile Include="..\dotnetCampus.Localizations\Ietf\LanguageSubtagItem.cs" />
   </ItemGroup>
 
 </Project>
