@@ -20,7 +20,7 @@ namespace dotnetCampus.Localizations.Generators;
 /// </code>
 /// </example>
 [Generator]
-public class LocalizationGenerator : IIncrementalGenerator
+public class LocalizationDefaultGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -38,10 +38,10 @@ public class LocalizationGenerator : IIncrementalGenerator
         var originalText = ReplaceNamespaceAndTypeName(localizationFile.Content, typeNamespace, typeName);
         var code = originalText
             .Replace("""ILocalized_Root Default { get; } = new LspPlaceholder("default", null)""",
-                $"global::{typeNamespace}.Localizations.ILocalized_Root Default {{ get; }} = new global::{typeNamespace}.Localizations.{nameof(LocalizationValues)}_{defaultLanguageIdentifier}(null)")
+                $"global::{GeneratorInfo.RootNamespace}.ILocalized_Root Default {{ get; }} = new global::{GeneratorInfo.RootNamespace}.{nameof(LocalizationValues)}_{defaultLanguageIdentifier}(null)")
             .Replace("""ILocalized_Root Current { get; private set; } = new LspPlaceholder("current", null)""", defaultLanguage == currentLanguage
-                ? $"global::{typeNamespace}.Localizations.ILocalized_Root Current {{ get; private set; }} = Default"
-                : $"global::{typeNamespace}.Localizations.ILocalized_Root Current {{ get; private set; }} = new global::{typeNamespace}.Localizations.{nameof(LocalizationValues)}_{currentLanguageIdentifier}(Default)");
+                ? $"global::{GeneratorInfo.RootNamespace}.ILocalized_Root Current {{ get; private set; }} = Default"
+                : $"global::{GeneratorInfo.RootNamespace}.ILocalized_Root Current {{ get; private set; }} = new global::{GeneratorInfo.RootNamespace}.{nameof(LocalizationValues)}_{currentLanguageIdentifier}(Default)");
 
         context.AddSource($"{typeName}.g.cs", SourceText.From(code, Encoding.UTF8));
     }

@@ -57,6 +57,6 @@ partial class {{typeName}}
     private string ConvertModelToPatternMatch(string typeNamespace, LocalizationFileModel model)
     {
         // "zh-hans" => new Lang_ZhHans(Default),
-        return $"            \"{model.IetfLanguageTag}\" => new global::{typeNamespace}.Localizations.{nameof(LocalizationValues)}_{IetfLanguageTagToIdentifier(model.IetfLanguageTag)}(Default),";
+        return $"            \"{model.IetfLanguageTag}\" => new global::{GeneratorInfo.RootNamespace}.{nameof(LocalizationValues)}_{IetfLanguageTagToIdentifier(model.IetfLanguageTag)}(Default),";
     }
 }

@@ -12,7 +12,7 @@ namespace dotnetCampus.Localizations.Generators;
 /// 为所有通过 LocalizationFile 指定的文件生成对应的 C# 代码。
 /// </summary>
 [Generator]
-public class LocalizationFilesGenerator : IIncrementalGenerator
+public class StringsGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {

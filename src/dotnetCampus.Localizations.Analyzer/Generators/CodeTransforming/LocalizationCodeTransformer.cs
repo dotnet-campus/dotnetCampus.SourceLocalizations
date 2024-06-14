@@ -45,7 +45,7 @@ using global::dotnetCampus.Localizations;
 using ILocalizedStringProvider = global::dotnetCampus.Localizations.ILocalizedStringProvider;
 using LocalizedString = global::dotnetCampus.Localizations.LocalizedString;
 
-namespace {rootNamespace}.Localizations;
+namespace {GeneratorInfo.RootNamespace};
 {RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode(Tree, 0)}
 """;
 
@@ -120,7 +120,7 @@ public interface ILocalized_{{nodeTypeName}} : ILocalizedStringProvider
         var typeName = IetfLanguageTagToIdentifier(ietfLanguageTag);
         var template = GeneratorInfo.GetEmbeddedTemplateFile<LocalizationValues>();
         var code = template.Content
-            .Replace($"namespace {template.Namespace};", $"namespace {rootNamespace}.Localizations;")
+            .Replace($"namespace {template.Namespace};", $"namespace {GeneratorInfo.RootNamespace};")
             .Replace($"class {nameof(LocalizationValues)}", $"class {nameof(LocalizationValues)}_{typeName}")
             .Replace(
                 $" : ILocalized_Root",
