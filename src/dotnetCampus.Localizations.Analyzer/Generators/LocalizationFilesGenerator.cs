@@ -16,29 +16,33 @@ public class LocalizationFilesGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var localizationFilesProvider = context.AdditionalTextsProvider.SelectLocalizationFileModels();
-        var localizationTypeprovider = context.SyntaxProvider.SelectGeneratingModels();
-        context.RegisterSourceOutput(localizationFilesProvider.Combine(localizationTypeprovider.Collect()), Execute);
+        var localizationFilesProvider = context.AdditionalTextsProvider.SelectLocalizationFileModels().Collect();
+        var localizationTypeprovider = context.SyntaxProvider.SelectGeneratingModels().Collect();
+        context.RegisterSourceOutput(localizationFilesProvider.Combine(localizationTypeprovider), Execute);
     }
 
-    private void Execute(SourceProductionContext context, (LocalizationFileModel Left, ImmutableArray<LocalizationGeneratingModel> Right) modelTuple)
+    private void Execute(SourceProductionContext context, (ImmutableArray<LocalizationFileModel> Left, ImmutableArray<LocalizationGeneratingModel> Right) models)
     {
-        var ((model, ietfLanguageTag, textContent), localizationGeneratingModels) = modelTuple;
-        var options = localizationGeneratingModels.FirstOrDefault();
+        var localizationFiles = models.Left;
+        var options = models.Right.FirstOrDefault();
 
-        var transformer = new LocalizationCodeTransformer(textContent, model switch
+        foreach (var file in localizationFiles)
         {
-            "toml" => new TomlLocalizationFileReader(),
-            "yaml" => new YamlLocalizationFileReader(),
-            _ => throw new NotSupportedException($"Unsupported localization file format: {model}"),
-        });
-        var code = transformer.ToImplementationCodeText(options.Namespace, ietfLanguageTag);
-        context.AddSource($"{nameof(LocalizationValues)}.{ietfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
+            var transformer = new LocalizationCodeTransformer(file.Content, file.FileFormat switch
+            {
+                "toml" => new TomlLocalizationFileReader(),
+                "yaml" => new YamlLocalizationFileReader(),
+                _ => throw new NotSupportedException($"Unsupported localization file format: {file.FileFormat}"),
+            });
 
-        if (ietfLanguageTag == options.DefaultLanguage)
-        {
-            var keyCode = transformer.ToInterfaceCodeText(options.Namespace);
-            context.AddSource($"{nameof(ILocalized_Root)}.g.cs", SourceText.From(keyCode, Encoding.UTF8));
+            var code = transformer.ToImplementationCodeText(options.Namespace, file.IetfLanguageTag);
+            context.AddSource($"{nameof(LocalizationValues)}.{file.IetfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
+
+            if (file.IetfLanguageTag == options.DefaultLanguage)
+            {
+                var keyCode = transformer.ToInterfaceCodeText(options.Namespace);
+                context.AddSource($"{nameof(ILocalized_Root)}.g.cs", SourceText.From(keyCode, Encoding.UTF8));
+            }
         }
     }
 }
