@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.Text;
 namespace dotnetCampus.Localizations.Generators;
 
 [Generator]
-public class LanguageSubtagRegistryGenerator : IIncrementalGenerator
+public class IetfLanguageTagsGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {

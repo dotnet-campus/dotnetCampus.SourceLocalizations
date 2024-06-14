@@ -45,10 +45,6 @@
     <ProjectReference Include="..\dotnetCampus.SourceLocalizations.PrivateGenerator\dotnetCampus.SourceLocalizations.PrivateGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
 
-  <ItemGroup>
-    <AdditionalFiles Include="Ietf\language-subtag-registry.txt" />
-  </ItemGroup>
-
   <!-- 生成 NuGet 包。 -->
   <Target Name="_IncludeAllDependencies" BeforeTargets="_GetPackageFiles">
     <ItemGroup>
