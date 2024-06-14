@@ -92,7 +92,7 @@ namespace {GeneratorInfo.RootNamespace};
         return $$"""
 
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-public interface ILocalizedValues{{nodeTypeName}} : ILocalizedStringProvider
+public{{(depth is 0 ? " partial" : "")}} interface ILocalizedValues{{nodeTypeName}} : ILocalizedStringProvider
 {
 {{string.Join("\n", propertyLines)}}
 }

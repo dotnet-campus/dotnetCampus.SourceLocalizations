@@ -6,7 +6,7 @@ using LocalizedString = global::dotnetCampus.Localizations.LocalizedString;
 namespace dotnetCampus.Localizations.Assets.Templates;
 
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-public interface ILocalizedValues : ILocalizedStringProvider
+public partial interface ILocalizedValues : ILocalizedStringProvider
 {
     // <FLAG>
     // ILocalizedValues A => (ILocalizedValues_A)this;
