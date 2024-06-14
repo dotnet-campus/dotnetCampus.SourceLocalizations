@@ -63,6 +63,35 @@ public readonly partial record struct IetfLanguageTag
     /// <exception cref="ArgumentException">字符串不符合 IETF BCP 47 标准。</exception>
     public static IetfLanguageTag FromString(string ietfLanguageTag, bool autoFixWindowsLegacyCultureName = true)
     {
-        return new IetfLanguageTag(ietfLanguageTag);
+        if (IetfLanguageTags.Set.Contains(ietfLanguageTag))
+        {
+            return new IetfLanguageTag(ietfLanguageTag);
+        }
+
+        if (autoFixWindowsLegacyCultureName)
+        {
+            var fixedIetfLanguageTag = FixWindowsLegacyCultureName(ietfLanguageTag);
+            if (IetfLanguageTags.Set.Contains(fixedIetfLanguageTag))
+            {
+                return new IetfLanguageTag(fixedIetfLanguageTag);
+            }
+        }
+
+        throw new ArgumentException($"The language tag '{ietfLanguageTag}' is not a valid IETF BCP 47 language tag.", nameof(ietfLanguageTag));
     }
+
+    /// <summary>
+    /// 修正 Windows 的区域名称。
+    /// </summary>
+    /// <param name="ietfLanguageTag"></param>
+    /// <returns></returns>
+    private static string FixWindowsLegacyCultureName(string ietfLanguageTag) => ietfLanguageTag switch
+    {
+        "zh-CN" => "zh-hans-cn",
+        "zh-HK" => "zh-hant-hk",
+        "zh-TW" => "zh-hant-tw",
+        "zh-SG" => "zh-hans-sg",
+        "zh-MO" => "zh-hant-mo",
+        _ => ietfLanguageTag,
+    };
 }

@@ -19,7 +19,7 @@ internal class Kernel32
     /// <para>
     /// Retrieves the user default locale name.
     /// Note
-    /// The application should call this function in preference to <see cref="GetUserDefaultLCID"/> if designed to run only on Windows Vista and later.
+    /// The application should call this function in preference to GetUserDefaultLCID if designed to run only on Windows Vista and later.
     /// </para>
     /// <para>
     /// From: <see href="https://learn.microsoft.com/en-us/windows/win32/api/winnls/nf-winnls-getuserdefaultlocalename"/>
@@ -36,11 +36,11 @@ internal class Kernel32
     /// <returns>
     /// Returns the size of the buffer containing the locale name, including the terminating null character, if successful.
     /// Note
-    /// On single-user systems, the return value is the same as that returned by <see cref="GetSystemDefaultLocaleName"/>.
+    /// On single-user systems, the return value is the same as that returned by GetSystemDefaultLocaleName.
     /// The function returns 0 if it does not succeed.
-    /// To get extended error information, the application can call <see cref="GetLastError"/>,
+    /// To get extended error information, the application can call GetLastError,
     /// which can return one of the following error codes:
-    /// <see cref="ERROR_INSUFFICIENT_BUFFER"/>. A supplied buffer size was not large enough, or it was incorrectly set to <see cref="NULL"/>.
+    /// ERROR_INSUFFICIENT_BUFFER. A supplied buffer size was not large enough, or it was incorrectly set to NULL.
     /// </returns>
     /// <remarks>
     /// This function can retrieve data from custom locales.
