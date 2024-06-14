@@ -57,8 +57,8 @@ namespace {GeneratorInfo.RootNamespace};
         }
 
         var nodeTypeName = depth is 0
-            ? "Root"
-            : "Root_" + string.Join("_", node.FullIdentifierKey);
+            ? ""
+            : "_" + string.Join("_", node.FullIdentifierKey);
         var propertyLines = node.Children.Select(x =>
         {
             var identifierKey = string.Join("_", x.FullIdentifierKey);
@@ -86,13 +86,13 @@ namespace {GeneratorInfo.RootNamespace};
             }
             else
             {
-                return $"    ILocalized_Root_{identifierKey} {x.IdentifierKey} => (ILocalized_Root_{identifierKey})this;";
+                return $"    ILocalizedValues_{identifierKey} {x.IdentifierKey} => (ILocalizedValues_{identifierKey})this;";
             }
         });
         return $$"""
 
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-public interface ILocalized_{{nodeTypeName}} : ILocalizedStringProvider
+public interface ILocalizedValues{{nodeTypeName}} : ILocalizedStringProvider
 {
 {{string.Join("\n", propertyLines)}}
 }
@@ -123,8 +123,8 @@ public interface ILocalized_{{nodeTypeName}} : ILocalizedStringProvider
             .Replace($"namespace {template.Namespace};", $"namespace {GeneratorInfo.RootNamespace};")
             .Replace($"class {nameof(LocalizationValues)}", $"class {nameof(LocalizationValues)}_{typeName}")
             .Replace(
-                $" : ILocalized_Root",
-                $" : ILocalized_Root{string.Concat(EnumerateConvertTreeNodeToInterfaceNames(Tree.Children).Select(x => $",\n    ILocalized_Root_{x}"))}")
+                $" : ILocalizedValues",
+                $" : ILocalizedValues{string.Concat(EnumerateConvertTreeNodeToInterfaceNames(Tree.Children).Select(x => $",\n    ILocalizedValues_{x}"))}")
             .Replace("""IetfLanguageTag => "default";""", $"""IetfLanguageTag => "{ietfLanguageTag}";""");
         var lines = LocalizationItems.Select(x => ConvertKeyValueToValueCodeLine(x.Key, x.Value));
         code = TemplateRegexes.FlagRegex.Replace(code, string.Concat(lines));

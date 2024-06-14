@@ -6,7 +6,7 @@ namespace dotnetCampus.Localizations.Assets.Templates;
 
 /// <inheritdoc />
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-public class LocalizationValues(ILocalized_Root? fallback) : ILocalized_Root
+public class LocalizationValues(ILocalizedValues? fallback) : ILocalizedValues
 {
     /// <inheritdoc />
     public string IetfLanguageTag => "default";

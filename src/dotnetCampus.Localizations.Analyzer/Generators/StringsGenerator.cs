@@ -41,7 +41,7 @@ public class StringsGenerator : IIncrementalGenerator
             if (file.IetfLanguageTag == options.DefaultLanguage)
             {
                 var keyCode = transformer.ToInterfaceCodeText(options.Namespace);
-                context.AddSource($"{nameof(ILocalized_Root)}.g.cs", SourceText.From(keyCode, Encoding.UTF8));
+                context.AddSource($"{nameof(ILocalizedValues)}.g.cs", SourceText.From(keyCode, Encoding.UTF8));
             }
         }
     }

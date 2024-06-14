@@ -15,13 +15,13 @@ internal class Program
 internal partial class Lang;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public interface ILocalized_Root : ILocalizedStringProvider
+public interface ILocalizedValues : ILocalizedStringProvider
 {
-    ILocalized_Root_A A => (ILocalized_Root_A)this;
+    ILocalizedValues_A A => (ILocalizedValues_A)this;
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public interface ILocalized_Root_A : ILocalizedStringProvider
+public interface ILocalizedValues_A : ILocalizedStringProvider
 {
     LocalizedString A1 => this.Get0("A.A1");
 
@@ -30,8 +30,8 @@ public interface ILocalized_Root_A : ILocalizedStringProvider
     LocalizedString<object> A3 => this.Get1<object>("A.A3");
 }
 
-public class Lang_ZhHans(ILocalized_Root? fallback) : ILocalized_Root,
-    ILocalized_Root_A
+public class Lang_ZhHans(ILocalizedValues? fallback) : ILocalizedValues,
+    ILocalizedValues_A
 {
     private readonly FrozenDictionary<string, string> _strings = new Dictionary<string, string>
     {
@@ -45,8 +45,8 @@ public class Lang_ZhHans(ILocalized_Root? fallback) : ILocalized_Root,
     public string IetfLanguageTag => "zh-hans";
 }
 
-public class Lang_En(ILocalized_Root? fallback) : ILocalized_Root,
-    ILocalized_Root_A
+public class Lang_En(ILocalizedValues? fallback) : ILocalizedValues,
+    ILocalizedValues_A
 {
     private readonly FrozenDictionary<string, string> _strings = new Dictionary<string, string>
     {
