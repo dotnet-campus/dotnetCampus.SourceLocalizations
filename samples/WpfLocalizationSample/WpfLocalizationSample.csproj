@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\dotnetCampus.Localizations.Analyzer\dotnetCampus.Localizations.Analyzer.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer"/>
+    <ProjectReference Include="..\..\src\dotnetCampus.Localizations\dotnetCampus.Localizations.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <LocalizationFile Include="Localizations\**\*.toml" />
+  </ItemGroup>
+
+</Project>
