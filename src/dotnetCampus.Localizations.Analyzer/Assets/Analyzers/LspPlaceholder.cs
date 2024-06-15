@@ -8,7 +8,7 @@ namespace dotnetCampus.Localizations.Assets.Analyzers;
 /// </summary>
 /// <param name="ietfLanguageTag"></param>
 /// <param name="fallback"></param>
-public class LspPlaceholder(string ietfLanguageTag, ILocalized_Root? fallback) : ILocalized_Root
+public class LspPlaceholder(string ietfLanguageTag, ILocalizedValues? fallback) : ILocalizedValues
 {
     /// <inheritdoc />
     public string IetfLanguageTag => ietfLanguageTag;

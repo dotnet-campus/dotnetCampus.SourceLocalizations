@@ -7,6 +7,7 @@
 
   <!-- Project Information -->
   <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Deterministic>true</Deterministic>
     <PackageId>dotnetCampus.SourceLocalizations</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -38,6 +39,10 @@
   <ItemGroup>
     <None Include="..\..\artifacts\bin\dotnetCampus.Localizations.Analyzer\$(Configuration)\**\*" Link="Package\analyzers\dotnet\cs\%(RecursiveDir)%(Filename)%(Extension)" />
     <None Include="..\..\artifacts\bin\dotnetCampus.Localizations.Tasks\$(Configuration)\**\*" Link="Package\tasks\netstandard2.0\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\dotnetCampus.SourceLocalizations.PrivateGenerator\dotnetCampus.SourceLocalizations.PrivateGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
 
   <!-- 生成 NuGet 包。 -->

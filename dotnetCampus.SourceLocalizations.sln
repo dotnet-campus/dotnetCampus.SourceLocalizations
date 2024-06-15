@@ -24,6 +24,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{6E0F9A76
 		build\Version.props = build\Version.props
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotnetCampus.SourceLocalizations.PrivateGenerator", "src\dotnetCampus.SourceLocalizations.PrivateGenerator\dotnetCampus.SourceLocalizations.PrivateGenerator.csproj", "{452ACCD4-EB0A-46ED-A8F9-38B5AD57C9EB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A585D7EF-916E-45B1-AFB8-025DE9FD1647}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,9 +53,14 @@ Global
 		{3170B151-6A25-4321-BF09-EFC516E32F8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3170B151-6A25-4321-BF09-EFC516E32F8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3170B151-6A25-4321-BF09-EFC516E32F8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{452ACCD4-EB0A-46ED-A8F9-38B5AD57C9EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{452ACCD4-EB0A-46ED-A8F9-38B5AD57C9EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{452ACCD4-EB0A-46ED-A8F9-38B5AD57C9EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{452ACCD4-EB0A-46ED-A8F9-38B5AD57C9EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F330175F-FC20-4D42-921A-747AC296D1B9} = {E407F54C-8E41-4F4E-B9BF-9864B6178E5F}
 		{3170B151-6A25-4321-BF09-EFC516E32F8D} = {4239BEE3-D480-4874-83E1-353B35F1BD86}
+		{452ACCD4-EB0A-46ED-A8F9-38B5AD57C9EB} = {A585D7EF-916E-45B1-AFB8-025DE9FD1647}
 	EndGlobalSection
 EndGlobal
