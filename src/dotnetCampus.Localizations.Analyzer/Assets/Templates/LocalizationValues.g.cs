@@ -12,7 +12,21 @@ public class LocalizationValues(ILocalizedValues? fallback) : ILocalizedValues
     public string IetfLanguageTag => "default";
 
     /// <inheritdoc />
-    public string this[string key] => _strings[key] ?? fallback![key];
+    public string this[string key] 
+    {
+        get
+        {
+            if (_strings.TryGetValue(key,out var value) && value != null)
+            {
+                return value;
+            }
+            if (fallback != null)
+            {
+                return fallback[key];
+            }
+            return "";
+        }
+    } 
 
     private readonly FrozenDictionary<string, string> _strings = new Dictionary<string, string>
     {
