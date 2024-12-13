@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using global::System.Collections.Frozen;
+using global::System.Collections.Generic;
 
 namespace dotnetCampus.Localizations.Assets.Templates;
 
