@@ -36,49 +36,36 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
         var defaultLanguageIdentifier = IetfLanguageTagToIdentifier(defaultLanguage);
         var currentLanguageIdentifier = IetfLanguageTagToIdentifier(currentLanguage);
 
-        // 生成 Localization.current.g.cs
-        var currentCode = GenerateSetCurrentMethod(typeNamespace, typeName, models);
-        context.AddSource($"{typeName}.current.g.cs", SourceText.From(currentCode, Encoding.UTF8));
-
-        // 生成 Localization.default.g.cs
+        // 生成 Localization.g.cs
         var localizationFile = GeneratorInfo.GetEmbeddedTemplateFile<Localization>();
         var originalText = ReplaceNamespaceAndTypeName(localizationFile.Content, typeNamespace, typeName);
         var defaultCode = originalText
-            .Replace("""ILocalizedValues Default { get; } = new LspPlaceholder("default", null)""",
-                $"global::{GeneratorInfo.RootNamespace}.ILocalizedValues Default {{ get; }} = new global::{GeneratorInfo.RootNamespace}.{nameof(LocalizationValues)}_{defaultLanguageIdentifier}(null)")
-            .Replace("""ILocalizedValues Current { get; private set; } = new LspPlaceholder("current", null)""", defaultLanguage == currentLanguage
-                ? $"global::{GeneratorInfo.RootNamespace}.ILocalizedValues Current {{ get; private set; }} = Default"
-                : $"global::{GeneratorInfo.RootNamespace}.ILocalizedValues Current {{ get; private set; }} = new global::{GeneratorInfo.RootNamespace}.{nameof(LocalizationValues)}_{currentLanguageIdentifier}(Default)");
-        context.AddSource($"{typeName}.default.g.cs", SourceText.From(defaultCode, Encoding.UTF8));
+            .Replace("LocalizedValues _default = new LocalizedValues(null!);",
+                $"global::{GeneratorInfo.RootNamespace}.LocalizedValues _default = CreateLocalizedValues(\"{defaultLanguage}\");")
+            .Replace("LocalizedValues _current = new LocalizedValues(null!);", defaultLanguage == currentLanguage
+                ? $"global::{GeneratorInfo.RootNamespace}.LocalizedValues _current = _default"
+                : $"global::{GeneratorInfo.RootNamespace}.LocalizedValues _current = CreateLocalizedValues(\"{currentLanguage}\");");
+        defaultCode = TemplateRegexes.FlagRegex.Replace(defaultCode, GenerateCreateLocalizedValues(defaultLanguage, models));
+        defaultCode = defaultCode
+            .Replace("ILocalizedValues", $"global::{GeneratorInfo.RootNamespace}.ILocalizedValues")
+            .Replace(" LocalizedValues", $" global::{GeneratorInfo.RootNamespace}.LocalizedValues");
+        context.AddSource($"{typeName}.g.cs", SourceText.From(defaultCode, Encoding.UTF8));
     }
 
-    private string GenerateSetCurrentMethod(string typeNamespace, string typeName, ImmutableArray<LocalizationFileModel> models) => $$"""
-#nullable enable
+    private string GenerateCreateLocalizedValues(string defaultIetfTag, ImmutableArray<LocalizationFileModel> models) => $$"""
 
-namespace {{typeNamespace}};
-
-partial class {{typeName}}
-{
-    /// <summary>
-    /// 设置当前的本地化字符串集。
-    /// </summary>
-    /// <param name="ietfLanguageTag">要设置的 IETF 语言标签。</param>
-    public static void SetCurrent(string ietfLanguageTag)
-    {
-        Current = ietfLanguageTag switch
-        {
-{{string.Join("\n", models.Select(x => ConvertModelToPatternMatch(typeNamespace, x)))}}
-            _ => throw new global::System.ArgumentException($"The language tag {ietfLanguageTag} is not supported.", nameof(ietfLanguageTag)),
-        };
-    }
-}
-
+{{string.Join("\n", models.Select(x => ConvertModelToPatternMatch(defaultIetfTag, x)))}}
 """;
 
-    private string ConvertModelToPatternMatch(string typeNamespace, LocalizationFileModel model)
+    private string ConvertModelToPatternMatch(string defaultIetfTag, LocalizationFileModel model)
     {
-        // "zh-hans" => new Lang_ZhHans(Default),
-        return $"            \"{model.IetfLanguageTag}\" => new global::{GeneratorInfo.RootNamespace}.{nameof(LocalizationValues)}_{IetfLanguageTagToIdentifier(model.IetfLanguageTag)}(Default),";
+        var tagIdentifier = IetfLanguageTagToIdentifier(model.IetfLanguageTag);
+        var defaultProvider = model.IetfLanguageTag == defaultIetfTag
+            ? "null"
+            : "_default.LocalizedStringProvider";
+        return $"""
+        "{model.IetfLanguageTag}" => new global::{GeneratorInfo.RootNamespace}.LocalizedValues(new global::{GeneratorInfo.RootNamespace}.{nameof(LocalizedStringProvider)}_{tagIdentifier}({defaultProvider})),
+""";
     }
 
     private static string ReplaceNamespaceAndTypeName(string sourceText, string rootNamespace, string? typeName)

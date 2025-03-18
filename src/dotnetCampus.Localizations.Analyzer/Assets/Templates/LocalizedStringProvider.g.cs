@@ -7,13 +7,13 @@ namespace dotnetCampus.Localizations.Assets.Templates;
 
 /// <inheritdoc />
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-public class LocalizationValues(ILocalizedValues? fallback) : ILocalizedValues
+public class LocalizedStringProvider(ILocalizedStringProvider? fallback) : ILocalizedStringProvider
 {
     /// <inheritdoc />
     public string IetfLanguageTag => "default";
 
     /// <inheritdoc />
-    public string this[string key] 
+    public string this[string key]
     {
         get
         {
@@ -27,7 +27,7 @@ public class LocalizationValues(ILocalizedValues? fallback) : ILocalizedValues
             }
             return "";
         }
-    } 
+    }
 
     private readonly FrozenDictionary<string, string> _strings = new Dictionary<string, string>
     {

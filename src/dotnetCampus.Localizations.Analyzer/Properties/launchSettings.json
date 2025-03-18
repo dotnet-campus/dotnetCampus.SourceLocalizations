@@ -1,0 +1,9 @@
+﻿{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "源生成器：LocalizationSample": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "../../samples/LocalizationSample/LocalizationSample.csproj"
+    }
+  }
+}

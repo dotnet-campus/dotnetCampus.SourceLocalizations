@@ -35,13 +35,16 @@ public class StringsGenerator : IIncrementalGenerator
                 _ => throw new NotSupportedException($"Unsupported localization file format: {file.FileFormat}"),
             });
 
-            var code = transformer.ToImplementationCodeText(options.Namespace, file.IetfLanguageTag);
-            context.AddSource($"{nameof(LocalizationValues)}.{file.IetfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
+            var code = transformer.ToProviderCodeText(options.Namespace, file.IetfLanguageTag);
+            context.AddSource($"{nameof(LocalizedStringProvider)}.{file.IetfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
 
             if (file.IetfLanguageTag == options.DefaultLanguage)
             {
-                var keyCode = transformer.ToInterfaceCodeText(options.Namespace);
-                context.AddSource($"{nameof(ILocalizedValues)}.g.cs", SourceText.From(keyCode, Encoding.UTF8));
+                var interfaceCode = transformer.ToInterfaceCodeText();
+                context.AddSource($"{nameof(ILocalizedValues)}.g.cs", SourceText.From(interfaceCode, Encoding.UTF8));
+
+                var implementationCode = transformer.ToImplementationCodeText(options.TypeName);
+                context.AddSource($"{nameof(LocalizedValues)}.g.cs", SourceText.From(implementationCode, Encoding.UTF8));
             }
         }
     }
