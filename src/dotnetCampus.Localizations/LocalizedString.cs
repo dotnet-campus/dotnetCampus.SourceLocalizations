@@ -1,9 +1,12 @@
+using System.Diagnostics;
+
 #pragma warning disable CS0809 // 过时成员重写未过时成员
 namespace dotnetCampus.Localizations;
 
 /// <summary>
 /// 表示一个本地化字符串，可隐式转换为字符串。
 /// </summary>
+[DebuggerDisplay("{_key} = \"{_value}\"")]
 public readonly record struct LocalizedString
 {
     private readonly string _key;
@@ -37,6 +40,7 @@ public readonly record struct LocalizedString
 /// 表示一个带有一个参数的本地化字符串。
 /// </summary>
 /// <typeparam name="T1">参数类型。</typeparam>
+[DebuggerDisplay("{_key} = \"{_value}\"")]
 public readonly record struct LocalizedString<T1>
 {
     private readonly string _key;
@@ -72,6 +76,7 @@ public readonly record struct LocalizedString<T1>
 /// </summary>
 /// <typeparam name="T1">第一个参数类型。</typeparam>
 /// <typeparam name="T2">第二个参数类型。</typeparam>
+[DebuggerDisplay("{_key} = \"{_value}\"")]
 public readonly record struct LocalizedString<T1, T2>
 {
     private readonly string _key;
@@ -109,6 +114,7 @@ public readonly record struct LocalizedString<T1, T2>
 /// <typeparam name="T1">第一个参数类型。</typeparam>
 /// <typeparam name="T2">第二个参数类型。</typeparam>
 /// <typeparam name="T3">第三个参数类型。</typeparam>
+[DebuggerDisplay("{_key} = \"{_value}\"")]
 public readonly record struct LocalizedString<T1, T2, T3>
 {
     private readonly string _key;
@@ -148,6 +154,7 @@ public readonly record struct LocalizedString<T1, T2, T3>
 /// <typeparam name="T2">第二个参数类型。</typeparam>
 /// <typeparam name="T3">第三个参数类型。</typeparam>
 /// <typeparam name="T4">第四个参数类型。</typeparam>
+[DebuggerDisplay("{_key} = \"{_value}\"")]
 public readonly record struct LocalizedString<T1, T2, T3, T4>
 {
     private readonly string _key;
