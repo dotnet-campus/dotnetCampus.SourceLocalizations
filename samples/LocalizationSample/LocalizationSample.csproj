@@ -1,17 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="..\..\src\dotnetCampus.Localizations\Package\build\Package.props" />
+
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\dotnetCampus.Localizations.Analyzer\dotnetCampus.Localizations.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\..\src\dotnetCampus.Localizations\dotnetCampus.Localizations.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <LocalizationFile Include="Localizations\**\*.yaml" />
+    <!-- 以下 yaml 和 toml 只能选其一，否则生成的语言类型名称会相同。 -->
+    <!-- <LocalizationFile Include="Localizations\**\*.yaml" /> -->
     <LocalizationFile Include="Localizations\**\*.toml" />
   </ItemGroup>
+
+  <Import Project="..\..\src\dotnetCampus.Localizations\Package\build\Package.targets" />
 
 </Project>
