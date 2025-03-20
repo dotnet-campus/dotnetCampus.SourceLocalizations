@@ -1,4 +1,6 @@
-﻿namespace dotnetCampus.Localizations.Generators.ModelProviding;
+﻿using System.Collections.Immutable;
+
+namespace dotnetCampus.Localizations.Generators.ModelProviding;
 
 /// <summary>
 /// IETF 语言标签扩展方法。
@@ -36,5 +38,31 @@ public static class IetfLanguageTagExtensions
         }
 
         return identifier.Slice(0, identifierIndex).ToString();
+    }
+
+    /// <summary>
+    /// 将 <see cref="LocalizationFileModel"/> 按照 IETF 语言标签分组。
+    /// </summary>
+    /// <param name="models">要分组的 <see cref="LocalizationFileModel"/> 集合。</param>
+    /// <returns>枚举的每一项都是一个元组，包含 IETF 语言标签和对应的 <see cref="LocalizationFileModel"/> 集合。</returns>
+    public static IEnumerable<(string IetfLanguageTag, ImmutableArray<LocalizationFileModel> Models)> GroupByIetfLanguageTag(this IEnumerable<LocalizationFileModel> models)
+    {
+        var groups = new Dictionary<string, List<LocalizationFileModel>>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var model in models)
+        {
+            if (!groups.TryGetValue(model.IetfLanguageTag, out var group))
+            {
+                group = [];
+                groups[model.IetfLanguageTag] = group;
+            }
+
+            group.Add(model);
+        }
+
+        foreach (var group in groups.Values)
+        {
+            yield return (group[0].IetfLanguageTag, [..group]);
+        }
     }
 }

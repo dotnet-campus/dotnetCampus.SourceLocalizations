@@ -33,8 +33,6 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
     private void Execute(SourceProductionContext context, (LocalizationGeneratingModel Left, ImmutableArray<LocalizationFileModel> Right) modelTuple)
     {
         var ((typeNamespace, typeName, defaultLanguage, currentLanguage), models) = modelTuple;
-        var defaultLanguageIdentifier = IetfLanguageTagToIdentifier(defaultLanguage);
-        var currentLanguageIdentifier = IetfLanguageTagToIdentifier(currentLanguage);
 
         // 生成 Localization.g.cs
         var localizationFile = GeneratorInfo.GetEmbeddedTemplateFile<Localization>();
@@ -52,19 +50,19 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
         context.AddSource($"{typeName}.g.cs", SourceText.From(defaultCode, Encoding.UTF8));
     }
 
-    private string GenerateCreateLocalizedValues(string defaultIetfTag, ImmutableArray<LocalizationFileModel> models) => $$"""
+    private string GenerateCreateLocalizedValues(string defaultIetfTag, ImmutableArray<LocalizationFileModel> models) => $"""
 
-{{string.Join("\n", models.Select(x => ConvertModelToPatternMatch(defaultIetfTag, x)))}}
+{string.Join("\n", models.GroupByIetfLanguageTag().Select(x => ConvertModelToPatternMatch(defaultIetfTag, x.IetfLanguageTag)))}
 """;
 
-    private string ConvertModelToPatternMatch(string defaultIetfTag, LocalizationFileModel model)
+    private string ConvertModelToPatternMatch(string defaultIetfTag, string ietfTag)
     {
-        var tagIdentifier = IetfLanguageTagToIdentifier(model.IetfLanguageTag);
-        var defaultProvider = model.IetfLanguageTag == defaultIetfTag
+        var tagIdentifier = IetfLanguageTagToIdentifier(ietfTag);
+        var defaultProvider = ietfTag == defaultIetfTag
             ? "null"
             : "_default.LocalizedStringProvider";
         return $"""
-        "{model.IetfLanguageTag}" => new global::{GeneratorInfo.RootNamespace}.LocalizedValues(new global::{GeneratorInfo.RootNamespace}.{nameof(LocalizedStringProvider)}_{tagIdentifier}({defaultProvider})),
+        "{ietfTag}" => new global::{GeneratorInfo.RootNamespace}.LocalizedValues(new global::{GeneratorInfo.RootNamespace}.{nameof(LocalizedStringProvider)}_{tagIdentifier}({defaultProvider})),
 """;
     }
 

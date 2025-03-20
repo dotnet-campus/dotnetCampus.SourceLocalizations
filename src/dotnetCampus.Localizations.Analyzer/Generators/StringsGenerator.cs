@@ -26,19 +26,14 @@ public class StringsGenerator : IIncrementalGenerator
         var localizationFiles = models.Left;
         var options = models.Right.FirstOrDefault();
 
-        foreach (var file in localizationFiles)
+        foreach (var (ietfLanguageTag, group) in localizationFiles.GroupByIetfLanguageTag())
         {
-            var transformer = new LocalizationCodeTransformer(file.Content, file.FileFormat switch
-            {
-                "toml" => new TomlLocalizationFileReader(),
-                "yaml" => new YamlLocalizationFileReader(),
-                _ => throw new NotSupportedException($"Unsupported localization file format: {file.FileFormat}"),
-            });
+            var transformer = new LocalizationCodeTransformer(group);
 
-            var code = transformer.ToProviderCodeText(options.Namespace, file.IetfLanguageTag);
-            context.AddSource($"{nameof(LocalizedStringProvider)}.{file.IetfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
+            var code = transformer.ToProviderCodeText(options.Namespace, ietfLanguageTag);
+            context.AddSource($"{nameof(LocalizedStringProvider)}.{ietfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
 
-            if (file.IetfLanguageTag == options.DefaultLanguage)
+            if (ietfLanguageTag == options.DefaultLanguage)
             {
                 var interfaceCode = transformer.ToInterfaceCodeText();
                 context.AddSource($"{nameof(ILocalizedValues)}.g.cs", SourceText.From(interfaceCode, Encoding.UTF8));

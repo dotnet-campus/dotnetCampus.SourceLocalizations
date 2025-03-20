@@ -6,8 +6,8 @@ internal class Program
 {
     public static void Main(string[] args)
     {
-        var a = Lang.Current.A.A2.ToString(1);
-        Console.WriteLine(a);
+        // var a = Lang.Current.A.A2.ToString(1);
+        // Console.WriteLine(a);
     }
 }
 

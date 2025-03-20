@@ -30,7 +30,7 @@ namespace {GeneratorInfo.RootNamespace};
 // 다음의 빈 부분 유형을 제공하여 언어 항목이 없더라도 로컬리제이션 메커니즘이 정상적으로 작동합니다.
 
 partial interface ILocalizedValues;
-partial sealed class LocalizedValues : ILocalizedValues;
+sealed partial class LocalizedValues : ILocalizedValues;
 
 """;
     }

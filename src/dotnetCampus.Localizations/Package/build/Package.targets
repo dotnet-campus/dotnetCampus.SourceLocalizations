@@ -16,6 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <LocalizationFile Condition="'$(EnableDefaultItems)' == 'true'" Include="**\*.toml;**\*.yaml" />
     <AdditionalFiles Include="@(LocalizationFile)" />
   </ItemGroup>
 

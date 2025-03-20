@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using dotnetCampus.Localizations.Assets.Templates;
+using dotnetCampus.Localizations.Generators.ModelProviding;
 using dotnetCampus.Localizations.Utils.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using static dotnetCampus.Localizations.Generators.ModelProviding.IetfLanguageTagExtensions;
@@ -27,11 +28,20 @@ public class LocalizationCodeTransformer
     /// <summary>
     /// 创建 <see cref="LocalizationCodeTransformer"/> 的新实例。
     /// </summary>
-    /// <param name="content">语言文件的内容。</param>
-    /// <param name="reader">语言文件读取器。</param>
-    public LocalizationCodeTransformer(string content, ILocalizationFileReader reader)
+    /// <param name="fileModels">读取出来的所有语言项。</param>
+    public LocalizationCodeTransformer(ImmutableArray<LocalizationFileModel> fileModels)
     {
-        LocalizationItems = reader.Read(content);
+        LocalizationItems =
+        [
+            ..fileModels
+                .Select(x => (Content: x.Content, Reader: (x.FileFormat switch
+                {
+                    "toml" => (ILocalizationFileReader)new TomlLocalizationFileReader(),
+                    "yaml" => (ILocalizationFileReader)new YamlLocalizationFileReader(),
+                    _ => throw new NotSupportedException($"Unsupported localization file format: {x.FileFormat}"),
+                })))
+                .SelectMany(x => x.Reader.Read(x.Content))
+        ];
         Tree = LocalizationTreeNode.FromList(LocalizationItems);
     }
 
@@ -174,7 +184,7 @@ namespace {GeneratorInfo.RootNamespace};
 
 [global::System.Diagnostics.DebuggerDisplay("[{LocalizedStringProvider.IetfLanguageTag}] {{typeName}}{{nodeKeyName}}.???")]
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-public sealed class LocalizedValues{{nodeTypeName}}(ILocalizedStringProvider provider) : ILocalizedValues{{nodeTypeName}}
+public sealed partial class LocalizedValues{{nodeTypeName}}(ILocalizedStringProvider provider) : ILocalizedValues{{nodeTypeName}}
 {
     /// <summary>
     /// 获取本地化字符串提供器。
