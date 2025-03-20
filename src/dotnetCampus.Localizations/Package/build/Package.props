@@ -4,4 +4,9 @@
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- 设定为 true 支持任意字符串成为语言标记，设定为 false 只支持 IETF 语言标记。 -->
+    <LocalizationSupportsNonIetfLanguageTag>false</LocalizationSupportsNonIetfLanguageTag>
+  </PropertyGroup>
+
 </Project>

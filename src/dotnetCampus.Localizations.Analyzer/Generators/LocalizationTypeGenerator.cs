@@ -4,6 +4,7 @@ using dotnetCampus.Localizations.Assets.Templates;
 using dotnetCampus.Localizations.Generators.ModelProviding;
 using dotnetCampus.Localizations.Utils.CodeAnalysis;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 
 using static dotnetCampus.Localizations.Generators.ModelProviding.IetfLanguageTagExtensions;
@@ -25,14 +26,18 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        var globalOptionsProvider = context.AnalyzerConfigOptionsProvider;
         var localizationFilesProvider = context.AdditionalTextsProvider.SelectLocalizationFileModels();
         var localizationTypeprovider = context.SyntaxProvider.SelectGeneratingModels();
-        context.RegisterSourceOutput(localizationTypeprovider.Combine(localizationFilesProvider.Collect()), Execute);
+        context.RegisterSourceOutput(localizationTypeprovider.Combine(globalOptionsProvider).Combine(localizationFilesProvider.Collect()), Execute);
     }
 
-    private void Execute(SourceProductionContext context, (LocalizationGeneratingModel Left, ImmutableArray<LocalizationFileModel> Right) modelTuple)
+    private void Execute(SourceProductionContext context, ((LocalizationGeneratingModel Left, AnalyzerConfigOptionsProvider Right) Left, ImmutableArray<LocalizationFileModel> Right) values)
     {
-        var ((typeNamespace, typeName, defaultLanguage, currentLanguage), models) = modelTuple;
+        var (((typeNamespace, typeName, defaultLanguage, currentLanguage), options), localizationFiles) = values;
+
+        var supportsNonIetfLanguageTag = options.GlobalOptions.TryGetValue("build_property.LocalizationSupportsNonIetfLanguageTag", out var v)
+                                         && (v?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? false);
 
         // 生成 Localization.g.cs
         var localizationFile = GeneratorInfo.GetEmbeddedTemplateFile<Localization>();
@@ -43,16 +48,16 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
             .Replace("LocalizedValues _current = new LocalizedValues(null!);", defaultLanguage == currentLanguage
                 ? $"global::{GeneratorInfo.RootNamespace}.LocalizedValues _current = _default;"
                 : $"global::{GeneratorInfo.RootNamespace}.LocalizedValues _current = CreateLocalizedValues(\"{currentLanguage}\");");
-        defaultCode = TemplateRegexes.FlagRegex.Replace(defaultCode, GenerateCreateLocalizedValues(defaultLanguage, models));
+        defaultCode = TemplateRegexes.FlagRegex.Replace(defaultCode, GenerateCreateLocalizedValues(defaultLanguage, localizationFiles, supportsNonIetfLanguageTag));
         defaultCode = defaultCode
             .Replace("ILocalizedValues", $"global::{GeneratorInfo.RootNamespace}.ILocalizedValues")
             .Replace(" LocalizedValues", $" global::{GeneratorInfo.RootNamespace}.LocalizedValues");
         context.AddSource($"{typeName}.g.cs", SourceText.From(defaultCode, Encoding.UTF8));
     }
 
-    private string GenerateCreateLocalizedValues(string defaultIetfTag, ImmutableArray<LocalizationFileModel> models) => $"""
+    private string GenerateCreateLocalizedValues(string defaultIetfTag, ImmutableArray<LocalizationFileModel> models, bool supportsNonIetfLanguageTag) => $"""
 
-{string.Join("\n", models.GroupByIetfLanguageTag().Select(x => ConvertModelToPatternMatch(defaultIetfTag, x.IetfLanguageTag)))}
+{string.Join("\n", models.GroupByIetfLanguageTag(supportsNonIetfLanguageTag).Select(x => ConvertModelToPatternMatch(defaultIetfTag, x.IetfLanguageTag)))}
 """;
 
     private string ConvertModelToPatternMatch(string defaultIetfTag, string ietfTag)

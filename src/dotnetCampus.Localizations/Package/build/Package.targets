@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <CompilerVisibleProperty Include="_DLangRootNamespace" />
+    <CompilerVisibleProperty Include="LocalizationSupportsNonIetfLanguageTag" />
   </ItemGroup>
 
 </Project>

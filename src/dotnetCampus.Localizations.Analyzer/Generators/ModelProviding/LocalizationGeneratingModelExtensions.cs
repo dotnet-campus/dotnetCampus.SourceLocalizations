@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Globalization;
 using dotnetCampus.Localizations.Assets.Templates;
 using dotnetCampus.Localizations.Utils.CodeAnalysis;
 using Microsoft.CodeAnalysis;
@@ -20,7 +19,7 @@ public static class LocalizationGeneratingModelExtensions
                 || x.Path.EndsWith(".yml", StringComparison.OrdinalIgnoreCase))
             .Select((x, ct) =>
             {
-                var ietfLanguageTag = GuessIetfLanguageTag(Path.GetFileNameWithoutExtension(x.Path));
+                var ietfLanguageTag = IetfLanguageTagExtensions.GuessIetfLanguageTagFromFileName(Path.GetFileNameWithoutExtension(x.Path));
                 var extension = Path.GetExtension(x.Path) switch
                 {
                     ".toml" => "toml",
@@ -28,39 +27,8 @@ public static class LocalizationGeneratingModelExtensions
                     _ => throw new NotSupportedException($"Unsupported localization file format: {x.Path}"),
                 };
                 var text = x.GetText(ct)!.ToString();
-                return ietfLanguageTag is null ? (LocalizationFileModel?)null : new LocalizationFileModel(extension, ietfLanguageTag, text);
-            })
-            .Where(x => x is not null)
-            .Select((x, ct) => (LocalizationFileModel)x!);
-
-    /// <summary>
-    /// 从文件名中猜测到底哪一段才是 IETF 语言标签。
-    /// </summary>
-    /// <param name="fileNameWithoutExtension">没有扩展名的文件名。</param>
-    /// <returns>如果能从文件名中猜测出 IETF 语言标签，则返回它，否则返回 null。</returns>
-    private static string? GuessIetfLanguageTag(string fileNameWithoutExtension)
-    {
-        var parts = fileNameWithoutExtension.Split([' ', '.', '_', ',', ';'], StringSplitOptions.RemoveEmptyEntries).Reverse();
-        return parts.FirstOrDefault(IsIetfLanguageTag)?.ToLowerInvariant();
-    }
-
-    /// <summary>
-    /// 判断一个字符串是否是 IETF 语言标签。
-    /// </summary>
-    /// <param name="text">要判断的字符串。</param>
-    /// <returns>如果是 IETF 语言标签，则返回 true，否则返回 false。</returns>
-    private static bool IsIetfLanguageTag(string text)
-    {
-        try
-        {
-            var cultureInfo = new CultureInfo(text);
-            return cultureInfo.Name.Equals(text, StringComparison.OrdinalIgnoreCase);
-        }
-        catch (CultureNotFoundException)
-        {
-            return false;
-        }
-    }
+                return new LocalizationFileModel(extension, ietfLanguageTag, text);
+            });
 
     /// <summary>
     /// 从增量源生成器的语法值提供器中挑选出所有的 <see cref="LocalizationGeneratingModel"/>。

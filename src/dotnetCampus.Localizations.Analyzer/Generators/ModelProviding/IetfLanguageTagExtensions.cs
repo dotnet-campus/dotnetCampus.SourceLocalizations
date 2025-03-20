@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Globalization;
 
 namespace dotnetCampus.Localizations.Generators.ModelProviding;
 
@@ -44,13 +45,20 @@ public static class IetfLanguageTagExtensions
     /// 将 <see cref="LocalizationFileModel"/> 按照 IETF 语言标签分组。
     /// </summary>
     /// <param name="models">要分组的 <see cref="LocalizationFileModel"/> 集合。</param>
+    /// <param name="supportsNonIetfLanguageTag">是否支持非 IETF 语言标签。</param>
     /// <returns>枚举的每一项都是一个元组，包含 IETF 语言标签和对应的 <see cref="LocalizationFileModel"/> 集合。</returns>
-    public static IEnumerable<(string IetfLanguageTag, ImmutableArray<LocalizationFileModel> Models)> GroupByIetfLanguageTag(this IEnumerable<LocalizationFileModel> models)
+    public static IEnumerable<(string IetfLanguageTag, ImmutableArray<LocalizationFileModel> Models)> GroupByIetfLanguageTag(
+        this IEnumerable<LocalizationFileModel> models, bool supportsNonIetfLanguageTag)
     {
         var groups = new Dictionary<string, List<LocalizationFileModel>>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var model in models)
         {
+            if (!supportsNonIetfLanguageTag && !IsIetfLanguageTag(model.IetfLanguageTag))
+            {
+                continue;
+            }
+
             if (!groups.TryGetValue(model.IetfLanguageTag, out var group))
             {
                 group = [];
@@ -63,6 +71,35 @@ public static class IetfLanguageTagExtensions
         foreach (var group in groups.Values)
         {
             yield return (group[0].IetfLanguageTag, [..group]);
+        }
+    }
+
+    /// <summary>
+    /// 从文件名中猜测到底哪一段才是 IETF 语言标签。
+    /// </summary>
+    /// <param name="fileNameWithoutExtension">没有扩展名的文件名。</param>
+    /// <returns>如果能从文件名中猜测出 IETF 语言标签，则返回它，否则返回 null。</returns>
+    public static string GuessIetfLanguageTagFromFileName(string fileNameWithoutExtension)
+    {
+        var parts = fileNameWithoutExtension.Split([' ', '.', '_', ',', ';'], StringSplitOptions.RemoveEmptyEntries).Reverse();
+        return parts.FirstOrDefault(IsIetfLanguageTag)?.ToLowerInvariant() ?? fileNameWithoutExtension;
+    }
+
+    /// <summary>
+    /// 判断一个字符串是否是 IETF 语言标签。
+    /// </summary>
+    /// <param name="text">要判断的字符串。</param>
+    /// <returns>如果是 IETF 语言标签，则返回 true，否则返回 false。</returns>
+    private static bool IsIetfLanguageTag(string text)
+    {
+        try
+        {
+            var cultureInfo = new CultureInfo(text);
+            return cultureInfo.Name.Equals(text, StringComparison.OrdinalIgnoreCase);
+        }
+        catch (CultureNotFoundException)
+        {
+            return false;
         }
     }
 }
