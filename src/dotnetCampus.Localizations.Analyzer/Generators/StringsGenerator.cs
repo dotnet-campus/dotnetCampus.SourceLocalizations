@@ -19,7 +19,7 @@ public class StringsGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var globalOptionsProvider = context.AnalyzerConfigOptionsProvider;
-        var localizationFilesProvider = context.AdditionalTextsProvider.SelectLocalizationFileModels().Collect();
+        var localizationFilesProvider = context.SelectLocalizationFileModels().Collect();
         var localizationTypeProvider = context.SyntaxProvider.SelectGeneratingModels().Collect();
         context.RegisterSourceOutput(globalOptionsProvider.Combine(localizationFilesProvider).Combine(localizationTypeProvider), Execute);
     }

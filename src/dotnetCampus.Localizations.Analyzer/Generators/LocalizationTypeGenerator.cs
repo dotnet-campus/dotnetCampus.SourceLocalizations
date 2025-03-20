@@ -27,7 +27,7 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var globalOptionsProvider = context.AnalyzerConfigOptionsProvider;
-        var localizationFilesProvider = context.AdditionalTextsProvider.SelectLocalizationFileModels();
+        var localizationFilesProvider = context.SelectLocalizationFileModels();
         var localizationTypeprovider = context.SyntaxProvider.SelectGeneratingModels();
         context.RegisterSourceOutput(localizationTypeprovider.Combine(globalOptionsProvider).Combine(localizationFilesProvider.Collect()), Execute);
     }

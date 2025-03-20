@@ -17,13 +17,14 @@
 
   <ItemGroup>
     <LocalizationFile Condition="'$(EnableDefaultItems)' == 'true'" Include="**\*.toml;**\*.yaml" />
-    <AdditionalFiles Include="@(LocalizationFile)" />
+    <AdditionalFiles Include="@(LocalizationFile)" IsDotNetCampusLocalizationFile="true" />
   </ItemGroup>
 
   <ItemGroup>
     <CompilerVisibleProperty Include="_DLangRootNamespace" />
     <CompilerVisibleProperty Include="LocalizationIsIncludedByPackageReference" />
     <CompilerVisibleProperty Include="LocalizationSupportsNonIetfLanguageTag" />
+    <CompilerVisibleItemMetadata  Include="AdditionalFiles" MetadataName="IsDotNetCampusLocalizationFile" />
   </ItemGroup>
 
 </Project>
