@@ -19,4 +19,20 @@ public readonly record struct LocalizationItem(
     string Value,
     string? SampleValue,
     ImmutableArray<string> ValueArgumentTypes,
-    string? Comments);
+    string? Comments)
+{
+    public static IEqualityComparer<LocalizationItem> KeyEqualityComparer { get; } = new KeyEqualityComparerImplementation();
+
+    private class KeyEqualityComparerImplementation : IEqualityComparer<LocalizationItem>
+    {
+        public bool Equals(LocalizationItem x, LocalizationItem y)
+        {
+            return x.Key.Equals(y.Key, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public int GetHashCode(LocalizationItem obj)
+        {
+            return obj.Key.ToLowerInvariant().GetHashCode();
+        }
+    }
+}

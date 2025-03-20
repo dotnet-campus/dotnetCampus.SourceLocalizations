@@ -5,6 +5,12 @@ namespace dotnetCampus.Localizations.Utils.CodeAnalysis;
 
 internal static class AnalyzerConfigOptionsExtensions
 {
+    public static bool GetBoolean(this AnalyzerConfigOptions options, string key)
+    {
+        return options.TryGetValue($"build_property.{key}", out var v)
+               && (v?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? false);
+    }
+
     public static AnalyzerConfigOptionResult TryGetValue<T>(
         this AnalyzerConfigOptions options,
         string key,

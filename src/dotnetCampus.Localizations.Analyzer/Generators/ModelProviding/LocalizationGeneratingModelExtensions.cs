@@ -12,14 +12,21 @@ namespace dotnetCampus.Localizations.Generators.ModelProviding;
 /// </summary>
 public static class LocalizationGeneratingModelExtensions
 {
-    public static IncrementalValuesProvider<LocalizationFileModel> SelectLocalizationFileModels(this IncrementalValuesProvider<AdditionalText> provider) =>
-        provider.Where(x =>
-                x.Path.EndsWith(".toml", StringComparison.OrdinalIgnoreCase)
-                || x.Path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)
-                || x.Path.EndsWith(".yml", StringComparison.OrdinalIgnoreCase))
+    public static IncrementalValuesProvider<LocalizationFileModel> SelectLocalizationFileModels(this IncrementalGeneratorInitializationContext context) =>
+        context.AdditionalTextsProvider
+            .Combine(context.AnalyzerConfigOptionsProvider)
+            .Where(pair =>
+                // 标记了 IsDotNetCampusLocalizationFile 的文件才生成。
+                (pair.Right.GetOptions(pair.Left).TryGetValue("build_metadata.AdditionalFiles.IsDotNetCampusLocalizationFile", out var t) && t.Equals("true"))
+                // 目前只支持 toml 和 yaml 格式的文件。
+                && (pair.Left.Path.EndsWith(".toml", StringComparison.OrdinalIgnoreCase)
+                    || pair.Left.Path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)
+                    || pair.Left.Path.EndsWith(".yml", StringComparison.OrdinalIgnoreCase))
+            )
+            .Select((x, ct) => x.Left)
             .Select((x, ct) =>
             {
-                var name = Path.GetFileNameWithoutExtension(x.Path);
+                var ietfLanguageTag = IetfLanguageTagExtensions.GuessIetfLanguageTagFromFileName(Path.GetFileNameWithoutExtension(x.Path));
                 var extension = Path.GetExtension(x.Path) switch
                 {
                     ".toml" => "toml",
@@ -27,7 +34,7 @@ public static class LocalizationGeneratingModelExtensions
                     _ => throw new NotSupportedException($"Unsupported localization file format: {x.Path}"),
                 };
                 var text = x.GetText(ct)!.ToString();
-                return new LocalizationFileModel(extension, name, text);
+                return new LocalizationFileModel(extension, ietfLanguageTag, text);
             });
 
     /// <summary>
@@ -60,8 +67,8 @@ public static class LocalizationGeneratingModelExtensions
                 .FirstOrDefault(a => a.AttributeClass!.IsAttributeOf<LocalizedConfigurationAttribute>());
             var x = attribute!.ConstructorArguments.ToImmutableArray();
             var namedArguments = attribute!.NamedArguments.ToImmutableDictionary();
-            var defaultLanguage = namedArguments.GetValueOrDefault(nameof(Localization.Default)).Value?.ToString()!;
-            var currentLanguage = namedArguments.GetValueOrDefault(nameof(Localization.Current)).Value?.ToString()!;
+            var defaultLanguage = namedArguments.GetValueOrDefault(nameof(Localization.Default)).Value?.ToString()!.ToLowerInvariant()!;
+            var currentLanguage = namedArguments.GetValueOrDefault(nameof(Localization.Current)).Value?.ToString()!.ToLowerInvariant()!;
 
             // 创建模型时，分析器确保了这些值不为空。
             return new LocalizationGeneratingModel(rootNamespace, typeName, defaultLanguage, currentLanguage);
