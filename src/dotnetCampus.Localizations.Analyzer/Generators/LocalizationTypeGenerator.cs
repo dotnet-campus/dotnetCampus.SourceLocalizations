@@ -43,7 +43,7 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
             .Replace("LocalizedValues _default = new LocalizedValues(null!);",
                 $"global::{GeneratorInfo.RootNamespace}.LocalizedValues _default = CreateLocalizedValues(\"{defaultLanguage}\");")
             .Replace("LocalizedValues _current = new LocalizedValues(null!);", defaultLanguage == currentLanguage
-                ? $"global::{GeneratorInfo.RootNamespace}.LocalizedValues _current = _default"
+                ? $"global::{GeneratorInfo.RootNamespace}.LocalizedValues _current = _default;"
                 : $"global::{GeneratorInfo.RootNamespace}.LocalizedValues _current = CreateLocalizedValues(\"{currentLanguage}\");");
         defaultCode = TemplateRegexes.FlagRegex.Replace(defaultCode, GenerateCreateLocalizedValues(defaultLanguage, models));
         defaultCode = defaultCode
