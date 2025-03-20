@@ -184,7 +184,7 @@ namespace {GeneratorInfo.RootNamespace};
 
 [global::System.Diagnostics.DebuggerDisplay("[{LocalizedStringProvider.IetfLanguageTag}] {{typeName}}{{nodeKeyName}}.???")]
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-public sealed partial class LocalizedValues{{nodeTypeName}}(ILocalizedStringProvider provider) : ILocalizedValues{{nodeTypeName}}
+internal sealed partial class LocalizedValues{{nodeTypeName}}(ILocalizedStringProvider provider) : ILocalizedValues{{nodeTypeName}}
 {
     /// <summary>
     /// 获取本地化字符串提供器。

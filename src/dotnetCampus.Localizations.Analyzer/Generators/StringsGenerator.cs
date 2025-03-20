@@ -43,7 +43,7 @@ public class StringsGenerator : IIncrementalGenerator
             var code = transformer.ToProviderCodeText(localizationType.Namespace, ietfLanguageTag);
             context.AddSource($"{nameof(LocalizedStringProvider)}.{ietfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
 
-            if (ietfLanguageTag == localizationType.DefaultLanguage)
+            if (string.Equals(ietfLanguageTag, localizationType.DefaultLanguage, StringComparison.OrdinalIgnoreCase))
             {
                 var interfaceCode = transformer.ToInterfaceCodeText();
                 context.AddSource($"{nameof(ILocalizedValues)}.g.cs", SourceText.From(interfaceCode, Encoding.UTF8));

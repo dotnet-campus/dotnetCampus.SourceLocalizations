@@ -29,8 +29,8 @@ namespace {GeneratorInfo.RootNamespace};
 // 以下の空の部分型を提供することで、言語項目がない場合でもローカリゼーションメカニズムが正常に機能します。
 // 다음의 빈 부분 유형을 제공하여 언어 항목이 없더라도 로컬리제이션 메커니즘이 정상적으로 작동합니다.
 
-partial interface ILocalizedValues;
-sealed partial class LocalizedValues : ILocalizedValues;
+public partial interface ILocalizedValues;
+internal sealed partial class LocalizedValues : ILocalizedValues;
 
 """;
     }

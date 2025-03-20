@@ -82,7 +82,7 @@ public static class IetfLanguageTagExtensions
     public static string GuessIetfLanguageTagFromFileName(string fileNameWithoutExtension)
     {
         var parts = fileNameWithoutExtension.Split([' ', '.', '_', ',', ';'], StringSplitOptions.RemoveEmptyEntries).Reverse();
-        return parts.FirstOrDefault(IsIetfLanguageTag)?.ToLowerInvariant() ?? fileNameWithoutExtension;
+        return parts.FirstOrDefault(IsIetfLanguageTag)?.ToLowerInvariant() ?? fileNameWithoutExtension.ToLowerInvariant();
     }
 
     /// <summary>
