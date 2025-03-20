@@ -36,8 +36,14 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
     {
         var (((typeNamespace, typeName, defaultLanguage, currentLanguage), options), localizationFiles) = values;
 
-        var supportsNonIetfLanguageTag = options.GlobalOptions.TryGetValue("build_property.LocalizationSupportsNonIetfLanguageTag", out var v)
-                                         && (v?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? false);
+        var isIncludedByPackageReference = options.GlobalOptions.GetBoolean("LocalizationIsIncludedByPackageReference");
+        var supportsNonIetfLanguageTag = options.GlobalOptions.GetBoolean("LocalizationSupportsNonIetfLanguageTag");
+
+        if (!isIncludedByPackageReference)
+        {
+            // 只有直接引用本地化库的项目才会生成本地化代码。
+            return;
+        }
 
         // 生成 Localization.g.cs
         var localizationFile = GeneratorInfo.GetEmbeddedTemplateFile<Localization>();

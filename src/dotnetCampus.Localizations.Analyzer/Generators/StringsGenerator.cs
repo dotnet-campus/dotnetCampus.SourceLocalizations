@@ -3,6 +3,7 @@ using System.Text;
 using dotnetCampus.Localizations.Assets.Templates;
 using dotnetCampus.Localizations.Generators.CodeTransforming;
 using dotnetCampus.Localizations.Generators.ModelProviding;
+using dotnetCampus.Localizations.Utils.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
@@ -33,8 +34,14 @@ public class StringsGenerator : IIncrementalGenerator
             return;
         }
 
-        var supportsNonIetfLanguageTag = options.GlobalOptions.TryGetValue("build_property.LocalizationSupportsNonIetfLanguageTag", out var v)
-                                         && (v?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? false);
+        var isIncludedByPackageReference = options.GlobalOptions.GetBoolean("LocalizationIsIncludedByPackageReference");
+        var supportsNonIetfLanguageTag = options.GlobalOptions.GetBoolean("LocalizationSupportsNonIetfLanguageTag");
+
+        if (!isIncludedByPackageReference)
+        {
+            // 只有直接引用本地化库的项目才会生成本地化代码。
+            return;
+        }
 
         foreach (var (ietfLanguageTag, group) in localizationFiles.GroupByIetfLanguageTag(supportsNonIetfLanguageTag))
         {
