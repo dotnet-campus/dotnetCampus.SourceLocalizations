@@ -70,7 +70,7 @@ Add these files to your project `csproj` file:
 
 ```xml
 <ItemGroup>
-    <AdditionalFiles Include="Localizations\**\*.toml" />
+    <LocalizationFile Include="Localizations\**\*.toml" />
 </ItemGroup>
 ```
 
