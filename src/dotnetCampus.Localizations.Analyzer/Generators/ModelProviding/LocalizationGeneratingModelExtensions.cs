@@ -16,8 +16,8 @@ public static class LocalizationGeneratingModelExtensions
         context.AdditionalTextsProvider
             .Combine(context.AnalyzerConfigOptionsProvider)
             .Where(pair =>
-                // 标记了 IsDotNetCampusLocalizationFile 的文件才生成。
-                (pair.Right.GetOptions(pair.Left).TryGetValue("build_metadata.AdditionalFiles.IsDotNetCampusLocalizationFile", out var t) && t.Equals("true"))
+                // 标记了 DotNetCampusLocalization 的文件才生成。
+                (pair.Right.GetOptions(pair.Left).TryGetValue("build_metadata.AdditionalFiles.SourceItemGroup", out var t) && t.Equals("DotNetCampusLocalization", StringComparison.OrdinalIgnoreCase))
                 // 目前只支持 toml 和 yaml 格式的文件。
                 && (pair.Left.Path.EndsWith(".toml", StringComparison.OrdinalIgnoreCase)
                     || pair.Left.Path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)
