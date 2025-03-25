@@ -11,8 +11,13 @@ public class LocalizedConfigurationAttribute : Attribute
     /// </summary>
     public required string Default { get; init; }
 
+#if !IN_ANALYZER
     /// <summary>
     /// 指定开发时所用的当前语言。可以在语言项的文档注释中查看此语言项的文本。
     /// </summary>
-    public required string Current { get; init; }
+    /// <remarks>
+    /// 如果没有指定，则会使用 <see cref="System.Globalization.CultureInfo.CurrentUICulture"/>。
+    /// </remarks>
+#endif
+    public string? Current { get; init; }
 }
