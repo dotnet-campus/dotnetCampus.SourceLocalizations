@@ -27,11 +27,18 @@ partial class Localization
     /// 创建指定 IETF 语言标签的本地化字符串集。
     /// </summary>
     /// <param name="ietfLanguageTag">IETF 语言标签。</param>
-    private static LocalizedValues CreateLocalizedValues(string ietfLanguageTag) => ietfLanguageTag switch
+    private static LocalizedValues CreateLocalizedValues(string ietfLanguageTag)
     {
-        // <FLAG>
-        "en" => new LocalizedValues(null!),
-        // </FLAG>
-        _ => throw new global::System.ArgumentException($"The language tag {ietfLanguageTag} is not supported.", nameof(ietfLanguageTag)),
-    };
+        if (_default is { } @default && ietfLanguageTag == "DEFAULT_IETF_LANGUAGE_TAG")
+        {
+            return @default;
+        }
+        return ietfLanguageTag switch
+        {
+            // <FLAG>
+            "en" => new LocalizedValues(null!),
+            // </FLAG>
+            _ => throw new global::System.ArgumentException($"The language tag {ietfLanguageTag} is not supported.", nameof(ietfLanguageTag)),
+        };
+    }
 }
