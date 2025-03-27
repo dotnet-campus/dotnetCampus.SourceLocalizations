@@ -5,7 +5,7 @@ namespace dotnetCampus.Localizations.Assets.Templates;
 
 /// <inheritdoc />
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-public class LocalizedStringProvider(ILocalizedStringProvider? fallback) : ILocalizedStringProvider
+internal class LocalizedStringProvider(ILocalizedStringProvider? fallback) : ILocalizedStringProvider
 {
     /// <inheritdoc />
     public string IetfLanguageTag => "default";

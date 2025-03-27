@@ -136,7 +136,37 @@ public interface ILocalizedValues_{{nodeTypeName}}
             .Replace("namespace dotnetCampus.Localizations.Assets.Templates;", $"namespace {GeneratorInfo.RootNamespace};")
             .FlagReplace(string.Concat(GenerateImplementationPropertyLines(Tree)))
             .Flag2Replace(string.Concat(Tree.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(x, 1, model.TypeName))))
-            .Flag3Replace(string.Concat(GeneratePropertyNotification(Tree)));
+            .Flag3Replace(GenerateSetProvider(Tree));
+        //.Flag3Replace(string.Concat(GeneratePropertyNotification(Tree)));
+    }
+
+    private string GenerateSetProvider(LocalizationTreeNode node)
+    {
+        return $$"""
+
+    /// <summary>
+    /// 在不改变 <see cref="LocalizedStringProvider"/> 实例的情况下，设置新的本地化字符串提供器，并通知所有的属性的变更。
+    /// </summary>
+    /// <param name="newProvider">新的本地化字符串提供器。</param>
+    /// <exception cref="ArgumentNullException">当 <paramref name="newProvider"/> 为 null 时抛出。</exception>
+    internal void SetProvider(ILocalizedStringProvider newProvider)
+    {
+        if (newProvider is null)
+        {
+            throw new ArgumentNullException(nameof(newProvider));
+        }
+
+        var oldProvider = LocalizedStringProvider;
+        if (oldProvider == newProvider)
+        {
+            return;
+        }
+        LocalizedStringProvider = newProvider;
+
+        // 递归通知所有叶子节点引发变更事件。
+{{string.Join("\n", GeneratePropertyNotification(node))}}
+    }
+""";
     }
 
     private string RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(LocalizationTreeNode node, int depth, string typeName)
@@ -152,14 +182,16 @@ public interface ILocalizedValues_{{nodeTypeName}}
 
 [global::System.Diagnostics.DebuggerDisplay("[{LocalizedStringProvider.IetfLanguageTag}] {{typeName}}.{{nodeKeyName}}.???")]
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-internal sealed partial class LocalizedValues_{{nodeTypeName}}(ILocalizedStringProvider provider) : ILocalizedValues_{{nodeTypeName}}
+internal sealed partial class LocalizedValues_{{nodeTypeName}}(ILocalizedStringProvider provider) : ILocalizedValues_{{nodeTypeName}}, INotifyPropertyChanged
 {
     /// <summary>
     /// 获取本地化字符串提供器。
     /// </summary>
-    public ILocalizedStringProvider LocalizedStringProvider => provider;
+    public ILocalizedStringProvider LocalizedStringProvider { get; private set; } = provider;
+{{GenerateSetProvider(node)}}
+{{string.Join("\n", GenerateImplementationPropertyLines(node))}}
 
-{{string.Join("\n\n", GenerateImplementationPropertyLines(node))}}
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     /// 获取非完整本地化字符串键的字符串表示。
@@ -182,7 +214,7 @@ internal sealed partial class LocalizedValues_{{nodeTypeName}}(ILocalizedStringP
                     return $"""
 
     /// <inheritdoc />
-    public LocalizedString {x.IdentifierKey} => provider.Get0("{x.Item.Key}");
+    public LocalizedString {x.IdentifierKey} => LocalizedStringProvider.Get0("{x.Item.Key}");
 """;
                 }
                 else
@@ -191,7 +223,7 @@ internal sealed partial class LocalizedValues_{{nodeTypeName}}(ILocalizedStringP
                     return $"""
 
     /// <inheritdoc />
-    public LocalizedString<{genericTypes}> {x.IdentifierKey} => provider.Get{x.Item.ValueArgumentTypes.Length}<{genericTypes}>("{x.Item.Key}");
+    public LocalizedString<{genericTypes}> {x.IdentifierKey} => LocalizedStringProvider.Get{x.Item.ValueArgumentTypes.Length}<{genericTypes}>("{x.Item.Key}");
 """;
                 }
             }
@@ -209,8 +241,9 @@ internal sealed partial class LocalizedValues_{{nodeTypeName}}(ILocalizedStringP
     {
         return node.Children.Select(x =>
         {
-            var identifierKey = x.GetFullIdentifierKey("_");
-            return $"\n        PropertyChanged?.Invoke(this, new global::System.ComponentModel.PropertyChangedEventArgs(\"{identifierKey}\"));";
+            return x.Children.Count is 0
+                ? $"        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(\"{x.IdentifierKey}\"));"
+                : $"        ((LocalizedValues_{x.GetFullIdentifierKey("_")}){x.IdentifierKey}).SetProvider(newProvider);";
         });
     }
 

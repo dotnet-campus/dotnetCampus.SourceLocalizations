@@ -2,19 +2,21 @@
 using ILocalizedStringProvider = global::dotnetCampus.Localizations.ILocalizedStringProvider;
 using INotifyPropertyChanged = global::System.ComponentModel.INotifyPropertyChanged;
 using LocalizedString = global::dotnetCampus.Localizations.LocalizedString;
+using PropertyChangedEventArgs = global::System.ComponentModel.PropertyChangedEventArgs;
 using PropertyChangedEventHandler = global::System.ComponentModel.PropertyChangedEventHandler;
 
 namespace dotnetCampus.Localizations.Assets.Templates;
 
 [global::System.Diagnostics.DebuggerDisplay("[{LocalizedStringProvider.IetfLanguageTag}] LOCALIZATION_TYPE_NAME.???")]
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-internal sealed class NotificationLocalizedValues(MutableLocalizedStringProvider provider) : global::System.ComponentModel.INotifyPropertyChanged, ILocalizedValues
+internal sealed class NotificationLocalizedValues(ILocalizedStringProvider provider) : ILocalizedValues, INotifyPropertyChanged
 {
     /// <summary>
     /// 获取本地化字符串提供器。
     /// </summary>
-    public ILocalizedStringProvider LocalizedStringProvider => provider.Provider;
+    public ILocalizedStringProvider LocalizedStringProvider { get; private set; } = provider;
 
+    // <FLAG3>
     /// <summary>
     /// 在不改变 <see cref="LocalizedStringProvider"/> 实例的情况下，设置新的本地化字符串提供器，并通知所有的属性的变更。
     /// </summary>
@@ -27,18 +29,17 @@ internal sealed class NotificationLocalizedValues(MutableLocalizedStringProvider
             throw new ArgumentNullException(nameof(newProvider));
         }
 
-        var oldProvider = provider.Provider;
+        var oldProvider = LocalizedStringProvider;
         if (oldProvider == newProvider)
         {
             return;
         }
-        provider.Provider = newProvider;
+        LocalizedStringProvider = newProvider;
 
-        // <FLAG3>
         // 在此处为所有的属性添加 PropertyChanged 事件。
-        PropertyChanged?.Invoke(this, new global::System.ComponentModel.PropertyChangedEventArgs(""));
-        // </FLAG3>
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
     }
+    // </FLAG3>
 
     // <FLAG>
     // 在此处生成数状结构当前节点的本地化值。
@@ -58,20 +59,3 @@ internal sealed class NotificationLocalizedValues(MutableLocalizedStringProvider
 // <FLAG2>
 // 在此处递归生成树状结构的本地化值。
 // </FLAG2>
-
-/// <summary>
-/// 包装一个 <see cref="ILocalizedStringProvider"/> 对象，允许在不改变自身实例的情况下，获取新 <see cref="ILocalizedStringProvider"/> 对象所提供的语言项。
-/// </summary>
-internal class MutableLocalizedStringProvider : ILocalizedStringProvider
-{
-    /// <summary>
-    /// 获取或设置当前正在使用的 <see cref="ILocalizedStringProvider"/> 对象。
-    /// </summary>
-    public required ILocalizedStringProvider Provider { get; set; }
-
-    /// <inheritdoc />
-    public string IetfLanguageTag => Provider.IetfLanguageTag;
-
-    /// <inheritdoc />
-    public string this[string key] => Provider[key];
-}

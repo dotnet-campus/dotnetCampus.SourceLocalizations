@@ -5,17 +5,8 @@ namespace dotnetCampus.Localizations.Assets.Templates;
 
 partial class NotificationLocalization
 {
-    private static readonly NotificationLocalizedValues _default =
-        new NotificationLocalizedValues(new MutableLocalizedStringProvider
-        {
-            Provider = CreateLocalizedStringProvider("DEFAULT_IETF_LANGUAGE_TAG"),
-        });
-
-    private static NotificationLocalizedValues _current =
-        new NotificationLocalizedValues(new MutableLocalizedStringProvider
-        {
-            Provider = CreateLocalizedStringProvider("CURRENT_IETF_LANGUAGE_TAG"),
-        });
+    private static readonly NotificationLocalizedValues _default = new NotificationLocalizedValues(CreateLocalizedStringProvider("DEFAULT_IETF_LANGUAGE_TAG"));
+    private static NotificationLocalizedValues _current = new NotificationLocalizedValues(CreateLocalizedStringProvider("CURRENT_IETF_LANGUAGE_TAG"));
 
     /// <summary>
     /// 获取默认的本地化字符串集。
@@ -54,10 +45,7 @@ partial class NotificationLocalization
     /// </summary>
     /// <param name="languageTag">语言标签（推荐 IETF 语言标签）。</param>
     /// <returns></returns>
-    public static ILocalizedValues Create(string languageTag) => new NotificationLocalizedValues(new MutableLocalizedStringProvider
-    {
-        Provider = CreateLocalizedStringProvider(languageTag),
-    });
+    public static ILocalizedValues Create(string languageTag) => new NotificationLocalizedValues(CreateLocalizedStringProvider(languageTag));
 
     /// <summary>
     /// 创建指定语言标签的本地化字符串集。
