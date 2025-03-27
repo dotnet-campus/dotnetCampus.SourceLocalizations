@@ -48,17 +48,13 @@ public class LocalizationCodeTransformer
 
     #region Language Key Interfaces
 
-    public string ToInterfaceCodeText() => $"""
-#nullable enable
-
-using global::dotnetCampus.Localizations;
-
-using ILocalizedStringProvider = global::dotnetCampus.Localizations.ILocalizedStringProvider;
-using LocalizedString = global::dotnetCampus.Localizations.LocalizedString;
-
-namespace {GeneratorInfo.RootNamespace};
-{RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode(Tree, 0)}
-""";
+    public string ToInterfaceCodeText()
+    {
+        return GeneratorInfo.GetEmbeddedTemplateFile<ILocalizedValues>().Content
+            .Replace("namespace dotnetCampus.Localizations.Assets.Templates;", $"namespace {GeneratorInfo.RootNamespace};")
+            .FlagReplace(string.Join("\n\n", string.Join("\n\n", GenerateInterfacePropertyLines(Tree))))
+            .Flag2Replace(string.Concat(Tree.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode(x, 1))));
+    }
 
     private string RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode(LocalizationTreeNode node, int depth)
     {
@@ -67,10 +63,21 @@ namespace {GeneratorInfo.RootNamespace};
             return "";
         }
 
-        var nodeTypeName = depth is 0
-            ? ""
-            : "_" + node.GetFullIdentifierKey("_");
-        var propertyLines = node.Children.Select(x =>
+        var nodeTypeName = node.GetFullIdentifierKey("_");
+        return $$"""
+
+[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+public interface ILocalizedValues_{{nodeTypeName}}
+{
+{{string.Join("\n\n", GenerateInterfacePropertyLines(node))}}
+}
+{{string.Concat(node.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode(x, depth + 1)))}}
+""";
+    }
+
+    private IEnumerable<string> GenerateInterfacePropertyLines(LocalizationTreeNode node)
+    {
+        return node.Children.Select(x =>
         {
             var identifierKey = x.GetFullIdentifierKey("_");
             if (x.Children.Count is 0)
@@ -102,15 +109,6 @@ namespace {GeneratorInfo.RootNamespace};
 """;
             }
         });
-        return $$"""
-
-[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-public{{(depth is 0 ? " partial" : "")}} interface ILocalizedValues{{nodeTypeName}}
-{
-{{string.Join("\n\n", propertyLines)}}
-}
-{{string.Concat(node.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode(x, depth + 1)))}}
-""";
     }
 
     private string ConvertValueToComment(string? value)
@@ -136,7 +134,7 @@ public{{(depth is 0 ? " partial" : "")}} interface ILocalizedValues{{nodeTypeNam
         return content
             .Replace("LOCALIZATION_TYPE_NAME", model.TypeName)
             .Replace("namespace dotnetCampus.Localizations.Assets.Templates;", $"namespace {GeneratorInfo.RootNamespace};")
-            .FlagReplace(string.Join("\n\n", GeneratePropertyLines(Tree)))
+            .FlagReplace(string.Join("\n\n", GenerateImplementationPropertyLines(Tree)))
             .Flag2Replace(string.Concat(Tree.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(x, 1, model.TypeName))))
             .Flag3Replace(string.Join("\n\n", GeneratePropertyNotification(Tree)));
     }
@@ -161,7 +159,7 @@ internal sealed partial class LocalizedValues_{{nodeTypeName}}(ILocalizedStringP
     /// </summary>
     public ILocalizedStringProvider LocalizedStringProvider => provider;
 
-{{string.Join("\n\n", GeneratePropertyLines(node))}}
+{{string.Join("\n\n", GenerateImplementationPropertyLines(node))}}
 
     /// <summary>
     /// 获取非完整本地化字符串键的字符串表示。
@@ -172,7 +170,7 @@ internal sealed partial class LocalizedValues_{{nodeTypeName}}(ILocalizedStringP
 """;
     }
 
-    private static IEnumerable<string> GeneratePropertyLines(LocalizationTreeNode node)
+    private static IEnumerable<string> GenerateImplementationPropertyLines(LocalizationTreeNode node)
     {
         return node.Children.Select(x =>
         {
