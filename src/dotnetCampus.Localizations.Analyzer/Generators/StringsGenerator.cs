@@ -36,6 +36,9 @@ public class StringsGenerator : IIncrementalGenerator
 
         var isIncludedByPackageReference = options.GlobalOptions.GetBoolean("LocalizationIsIncludedByPackageReference");
         var supportsNonIetfLanguageTag = options.GlobalOptions.GetBoolean("LocalizationSupportsNonIetfLanguageTag");
+        var allLocalizationModels = localizationFiles.GroupByIetfLanguageTag(supportsNonIetfLanguageTag)
+            .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models);
+        var allTags = allLocalizationModels.Keys.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
 
         if (!isIncludedByPackageReference)
         {
@@ -43,14 +46,24 @@ public class StringsGenerator : IIncrementalGenerator
             return;
         }
 
-        foreach (var (ietfLanguageTag, group) in localizationFiles.GroupByIetfLanguageTag(supportsNonIetfLanguageTag))
+        var referenceLanguageTag = allTags.Contains(localizationType.DefaultLanguage)
+            ? localizationType.DefaultLanguage
+            : allTags.FirstOrDefault() ?? null;
+        if (referenceLanguageTag is null)
         {
+            // 没有找到任何语言标签，无法生成代码。
+            return;
+        }
+
+        foreach (var pair in allLocalizationModels)
+        {
+            var (ietfLanguageTag, group) = (pair.Key, pair.Value);
             var transformer = new LocalizationCodeTransformer(group);
 
             var code = transformer.ToProviderCodeText(localizationType.Namespace, ietfLanguageTag);
             context.AddSource($"{nameof(LocalizedStringProvider)}.{ietfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
 
-            if (string.Equals(ietfLanguageTag, localizationType.DefaultLanguage, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(ietfLanguageTag, referenceLanguageTag, StringComparison.OrdinalIgnoreCase))
             {
                 var interfaceCode = transformer.ToInterfaceCodeText();
                 context.AddSource($"{nameof(ILocalizedValues)}.g.cs", SourceText.From(interfaceCode, Encoding.UTF8));

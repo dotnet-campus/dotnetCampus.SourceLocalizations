@@ -11,5 +11,4 @@ namespace dotnetCampus.Localizations.Generators.ModelProviding;
 /// <param name="CurrentLanguage">当前语言的 IETF 语言标签。</param>
 public readonly record struct LocalizationGeneratingModel(
     string Namespace, string TypeName,
-    string DefaultLanguage, Location DefaultTagLocation,
-    string? CurrentLanguage, Location? CurrentTagLocation);
+    string DefaultLanguage, string? CurrentLanguage);
