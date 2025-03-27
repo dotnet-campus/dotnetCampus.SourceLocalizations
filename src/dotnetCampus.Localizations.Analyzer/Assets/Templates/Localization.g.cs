@@ -44,7 +44,7 @@ partial class Localization
 
         // 有通知型。
         NotificationLocalizedValues notificationCurrent = _current;
-        notificationCurrent.SetProvider(CreateLocalizedStringProvider(languageTag));
+        notificationCurrent.SetProvider(GetOrCreateLocalizedStringProvider(languageTag));
 
         // </FLAG3>
     }
@@ -54,14 +54,14 @@ partial class Localization
     /// </summary>
     /// <param name="languageTag">语言标签（推荐 IETF 语言标签）。</param>
     /// <returns></returns>
-    public static ILocalizedValues Create(string languageTag) => CreateLocalizedValues(languageTag);
+    public static ILocalizedValues Create(string languageTag) => GetOrCreateLocalizedValues(languageTag);
 
     /// <summary>
     /// 创建指定语言标签的本地化字符串集。（如果刚好是默认或当前的语言标签，则直接返回默认或当前的本地化字符串集的实例。）
     /// </summary>
     /// <param name="languageTag">语言标签（推荐 IETF 语言标签）。</param>
     /// <returns></returns>
-    public static PlaceholderLocalizedValues CreateLocalizedValues(string languageTag)
+    private static PlaceholderLocalizedValues GetOrCreateLocalizedValues(string languageTag)
     {
         if (_default is { } @default && languageTag.Equals("DEFAULT_IETF_LANGUAGE_TAG", StringComparison.OrdinalIgnoreCase))
         {
@@ -71,14 +71,14 @@ partial class Localization
         {
             return @current;
         }
-        return new PlaceholderLocalizedValues(CreateLocalizedStringProvider(languageTag));
+        return new PlaceholderLocalizedValues(GetOrCreateLocalizedStringProvider(languageTag));
     }
 
     /// <summary>
     /// 创建指定语言标签的本地化字符串集。
     /// </summary>
     /// <param name="languageTag">语言标签（推荐 IETF 语言标签）。</param>
-    private static ILocalizedStringProvider CreateLocalizedStringProvider(string languageTag)
+    private static ILocalizedStringProvider GetOrCreateLocalizedStringProvider(string languageTag)
     {
         var lowerTag = languageTag.ToLowerInvariant();
         if (_default is { } @default && lowerTag == "DEFAULT_IETF_LANGUAGE_TAG")
@@ -89,12 +89,35 @@ partial class Localization
         {
             return current.LocalizedStringProvider;
         }
-        return lowerTag switch
+        var provider = CreateLocalizedStringProvider(languageTag);
+        while (provider is null)
+        {
+            var parentTag = new global::System.Globalization.CultureInfo(languageTag).Parent.Name;
+            if (string.IsNullOrWhiteSpace(parentTag))
+            {
+                break;
+            }
+            provider = CreateLocalizedStringProvider(parentTag);
+        }
+        if (provider is not null)
+        {
+            return provider;
+        }
+        throw new global::System.ArgumentException($"The language tag {languageTag} is not supported.", nameof(languageTag));
+    }
+
+    /// <summary>
+    /// 创建指定语言标签的本地化字符串集。
+    /// </summary>
+    /// <param name="languageTag">语言标签（推荐 IETF 语言标签）。</param>
+    private static ILocalizedStringProvider? CreateLocalizedStringProvider(string languageTag)
+    {
+        return languageTag.ToLowerInvariant() switch
         {
             // <FLAG>
-            "en" => null!,
+            "en" => null,
             // </FLAG>
-            _ => throw new global::System.ArgumentException($"The language tag {languageTag} is not supported.", nameof(languageTag)),
+            _ => null,
         };
     }
 }

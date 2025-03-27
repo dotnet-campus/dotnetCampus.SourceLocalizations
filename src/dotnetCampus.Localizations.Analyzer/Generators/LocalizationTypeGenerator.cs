@@ -55,10 +55,10 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
         var defaultCode = originalText
             .Replace(
                 "PlaceholderLocalizedValues _default = new PlaceholderLocalizedValues(null!);",
-                $"global::{GeneratorInfo.RootNamespace}.{localizedValuesTypeName} _default = CreateLocalizedValues(\"{defaultLanguage}\");")
+                $"global::{GeneratorInfo.RootNamespace}.{localizedValuesTypeName} _default = GetOrCreateLocalizedValues(\"{defaultLanguage}\");")
             .Replace(
                 "PlaceholderLocalizedValues _current = new PlaceholderLocalizedValues(null!);",
-                $"global::{GeneratorInfo.RootNamespace}.{localizedValuesTypeName} _current = CreateLocalizedValues({currentLanguage switch
+                $"global::{GeneratorInfo.RootNamespace}.{localizedValuesTypeName} _current = GetOrCreateLocalizedValues({currentLanguage switch
                 {
                     not null => $"\"{currentLanguage}\"",
                     null => "global::System.Globalization.CultureInfo.CurrentUICulture.Name",
@@ -131,7 +131,7 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
     private string GenerateNotifyChangedSetCurrent()
     {
         return """
-        _current.SetProvider(CreateLocalizedStringProvider(languageTag));
+        _current.SetProvider(GetOrCreateLocalizedStringProvider(languageTag));
 """;
     }
 }
