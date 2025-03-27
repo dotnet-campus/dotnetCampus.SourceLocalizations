@@ -48,7 +48,7 @@ public class LocalizationCodeTransformer
 
     #region Language Key Interfaces
 
-    public string ToInterfaceCodeText()
+    public string ToInterfaceCodeText(LocalizationGeneratingModel model)
     {
         return GeneratorInfo.GetEmbeddedTemplateFile<ILocalizedValues>().Content
             .Replace("namespace dotnetCampus.Localizations.Assets.Templates;", $"namespace {GeneratorInfo.RootNamespace};")
@@ -210,7 +210,7 @@ internal sealed partial class LocalizedValues_{{nodeTypeName}}(ILocalizedStringP
         return node.Children.Select(x =>
         {
             var identifierKey = x.GetFullIdentifierKey("_");
-            return $"\n            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(\"{identifierKey}\"));";
+            return $"\n        PropertyChanged?.Invoke(this, new global::System.ComponentModel.PropertyChangedEventArgs(\"{identifierKey}\"));";
         });
     }
 

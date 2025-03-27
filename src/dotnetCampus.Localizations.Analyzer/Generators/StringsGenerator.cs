@@ -65,7 +65,7 @@ public class StringsGenerator : IIncrementalGenerator
 
             if (string.Equals(ietfLanguageTag, referenceLanguageTag, StringComparison.OrdinalIgnoreCase))
             {
-                var interfaceCode = transformer.ToInterfaceCodeText();
+                var interfaceCode = transformer.ToInterfaceCodeText(localizationType);
                 context.AddSource($"{nameof(ILocalizedValues)}.g.cs", SourceText.From(interfaceCode, Encoding.UTF8));
 
                 var implementationCode = transformer.ToImplementationCodeText(localizationType);

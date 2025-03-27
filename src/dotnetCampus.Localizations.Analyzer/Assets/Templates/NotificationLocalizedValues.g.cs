@@ -1,6 +1,4 @@
 ﻿#nullable enable
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using ILocalizedStringProvider = global::dotnetCampus.Localizations.ILocalizedStringProvider;
 using INotifyPropertyChanged = global::System.ComponentModel.INotifyPropertyChanged;
 using LocalizedString = global::dotnetCampus.Localizations.LocalizedString;
@@ -10,7 +8,7 @@ namespace dotnetCampus.Localizations.Assets.Templates;
 
 [global::System.Diagnostics.DebuggerDisplay("[{LocalizedStringProvider.IetfLanguageTag}] LOCALIZATION_TYPE_NAME.???")]
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-internal sealed class NotificationLocalizedValues(MutableLocalizedStringProvider provider) : INotifyPropertyChanged, ILocalizedValues
+internal sealed class NotificationLocalizedValues(MutableLocalizedStringProvider provider) : global::System.ComponentModel.INotifyPropertyChanged, ILocalizedValues
 {
     /// <summary>
     /// 获取本地化字符串提供器。
@@ -38,7 +36,7 @@ internal sealed class NotificationLocalizedValues(MutableLocalizedStringProvider
 
         // <FLAG3>
         // 在此处为所有的属性添加 PropertyChanged 事件。
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
+        PropertyChanged?.Invoke(this, new global::System.ComponentModel.PropertyChangedEventArgs(""));
         // </FLAG3>
     }
 
