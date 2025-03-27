@@ -71,8 +71,15 @@ partial class Localization
         {
             return @current;
         }
-        return new PlaceholderLocalizedValues(GetOrCreateLocalizedStringProvider(languageTag));
+        return new PlaceholderLocalizedValues(Wrap(GetOrCreateLocalizedStringProvider(languageTag)));
     }
+
+    /// <summary>
+    /// 包装一个 <see cref="ILocalizedStringProvider"/> 对象，使其根据开发者设置的是否允许语言项变更通知返回不同的类型。
+    /// </summary>
+    /// <param name="rawProvider">原始的 <see cref="ILocalizedStringProvider"/> 对象。</param>
+    /// <returns>包装后的 <see cref="ILocalizedStringProvider"/> 对象。</returns>
+    private static ILocalizedStringProvider Wrap(ILocalizedStringProvider rawProvider) => rawProvider;
 
     /// <summary>
     /// 创建指定语言标签的本地化字符串集。

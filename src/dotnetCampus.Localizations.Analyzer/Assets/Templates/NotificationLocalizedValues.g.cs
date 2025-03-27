@@ -10,7 +10,7 @@ namespace dotnetCampus.Localizations.Assets.Templates;
 
 [global::System.Diagnostics.DebuggerDisplay("[{LocalizedStringProvider.IetfLanguageTag}] LOCALIZATION_TYPE_NAME.???")]
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-internal sealed class NotificationLocalizedValues(ILocalizedStringProvider provider) : INotifyPropertyChanged, ILocalizedValues
+internal sealed class NotificationLocalizedValues(MutableLocalizedStringProvider provider) : INotifyPropertyChanged, ILocalizedValues
 {
     /// <summary>
     /// 获取本地化字符串提供器。
@@ -24,22 +24,17 @@ internal sealed class NotificationLocalizedValues(ILocalizedStringProvider provi
     /// <exception cref="ArgumentNullException">当 <paramref name="newProvider"/> 为 null 时抛出。</exception>
     internal void SetProvider(ILocalizedStringProvider newProvider)
     {
-        if (provider is not MutableLocalizedStringProvider mutableProvider)
-        {
-            throw new InvalidOperationException("源生成器生成的类型错误，不应该在无语言变更通知的情况下调用此方法。");
-        }
-
         if (newProvider is null)
         {
             throw new ArgumentNullException(nameof(newProvider));
         }
 
-        var oldProvider = mutableProvider.Provider;
+        var oldProvider = provider.Provider;
         if (oldProvider == newProvider)
         {
             return;
         }
-        mutableProvider.Provider = newProvider;
+        provider.Provider = newProvider;
 
         // <FLAG3>
         // 在此处为所有的属性添加 PropertyChanged 事件。

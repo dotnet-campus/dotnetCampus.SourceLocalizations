@@ -69,6 +69,12 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
             .Flag3Replace(supportsNotifyChanged ? GenerateNotifyChangedSetCurrent() : GenerateImmutableSetCurrent())
             .Replace("ILocalizedValues", $"global::{GeneratorInfo.RootNamespace}.ILocalizedValues")
             .Replace("PlaceholderLocalizedValues", $" global::{GeneratorInfo.RootNamespace}.{localizedValuesTypeName}");
+        if (supportsNotifyChanged)
+        {
+            defaultCode = defaultCode.Replace(
+                "ILocalizedStringProvider Wrap(ILocalizedStringProvider rawProvider) => rawProvider",
+                $"global::{GeneratorInfo.RootNamespace}.MutableLocalizedStringProvider Wrap(ILocalizedStringProvider rawProvider) => new global::{GeneratorInfo.RootNamespace}.MutableLocalizedStringProvider{{ Provider = rawProvider}}");
+        }
         context.AddSource($"{typeName}.g.cs", SourceText.From(defaultCode, Encoding.UTF8));
     }
 
@@ -124,7 +130,7 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
     private string GenerateImmutableSetCurrent()
     {
         return """
-        _current = CreateLocalizedValues(languageTag);
+        _current = GetOrCreateLocalizedValues(languageTag);
 """;
     }
 
