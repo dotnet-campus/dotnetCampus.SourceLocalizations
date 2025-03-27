@@ -18,6 +18,22 @@ public class Diagnostics
         DiagnosticSeverity.Error,
         true);
 
+    public static DiagnosticDescriptor DL0001_DefaultLanguageTagIsNotInTheTagList { get; } = new(
+        nameof(DLA001),
+        Localize(nameof(DLA001)),
+        Localize(nameof(DLA001_Message)),
+        Categories.RuntimeException,
+        DiagnosticSeverity.Error,
+        true);
+
+    public static DiagnosticDescriptor DL0002_CurrentLanguageTagIsNotInTheTagList { get; } = new(
+        nameof(DLA002),
+        Localize(nameof(DLA002)),
+        Localize(nameof(DLA002_Message)),
+        Categories.RuntimeException,
+        DiagnosticSeverity.Error,
+        true);
+
     private static class Categories
     {
         /// <summary>

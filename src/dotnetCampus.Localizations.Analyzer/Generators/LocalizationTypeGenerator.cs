@@ -34,15 +34,34 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
 
     private void Execute(SourceProductionContext context, ((LocalizationGeneratingModel Left, AnalyzerConfigOptionsProvider Right) Left, ImmutableArray<LocalizationFileModel> Right) values)
     {
-        var (((typeNamespace, typeName, defaultLanguage, currentLanguage), options), localizationFiles) = values;
+        var (((typeNamespace, typeName, defaultLanguage, defaultTagLocation, currentLanguage, currentTagLocation), options), localizationFiles) = values;
 
         var isIncludedByPackageReference = options.GlobalOptions.GetBoolean("LocalizationIsIncludedByPackageReference");
         var supportsNonIetfLanguageTag = options.GlobalOptions.GetBoolean("LocalizationSupportsNonIetfLanguageTag");
+        var allLanguageModels = localizationFiles.GroupByIetfLanguageTag(supportsNonIetfLanguageTag)
+            .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models);
+        var allLanguageTags = allLanguageModels.Keys.ToImmutableSortedSet();
 
         if (!isIncludedByPackageReference)
         {
             // 只有直接引用本地化库的项目才会生成本地化代码。
             return;
+        }
+
+        if (!allLanguageTags.Contains(defaultLanguage))
+        {
+            context.ReportDiagnostic(Diagnostic.Create(
+                Diagnostics.DL0001_DefaultLanguageTagIsNotInTheTagList,
+                defaultTagLocation,
+                defaultLanguage, string.Join(", ", allLanguageTags)));
+        }
+
+        if (currentLanguage is not null && !allLanguageTags.Contains(currentLanguage))
+        {
+            context.ReportDiagnostic(Diagnostic.Create(
+                Diagnostics.DL0002_CurrentLanguageTagIsNotInTheTagList,
+                currentTagLocation,
+                currentLanguage, string.Join(", ", allLanguageTags)));
         }
 
         // 生成 Localization.g.cs

@@ -73,5 +73,29 @@ namespace dotnetCampus.Localizations.Properties {
                 return ResourceManager.GetString("DLA000_Message", resourceCulture);
             }
         }
+
+        internal static string DLA001 {
+            get {
+                return ResourceManager.GetString("DLA001", resourceCulture);
+            }
+        }
+
+        internal static string DLA001_Message {
+            get {
+                return ResourceManager.GetString("DLA001_Message", resourceCulture);
+            }
+        }
+
+        internal static string DLA002 {
+            get {
+                return ResourceManager.GetString("DLA002", resourceCulture);
+            }
+        }
+
+        internal static string DLA002_Message {
+            get {
+                return ResourceManager.GetString("DLA002_Message", resourceCulture);
+            }
+        }
     }
 }

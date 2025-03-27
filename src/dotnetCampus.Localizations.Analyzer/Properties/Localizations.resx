@@ -29,4 +29,19 @@
   <data name="DLA000_Message" xml:space="preserve">
     <value>An unknown error occurred. {0}</value>
   </data>
+  <data name="DLA001" xml:space="preserve">
+    <value>language tag does not exist</value>
+  </data>
+  <data name="DLA001_Message" xml:space="preserve">
+    <value>The default language tag "{0}" is not in the supported language list, which is: {1}.</value>
+  </data>
+  <data name="DLA002" xml:space="preserve">
+    <value>Current language tag does not exist</value>
+  </data>
+  <data name="DLA002_Message" xml:space="preserve">
+    <value>The current language tag "{0}" is not in the supported language list, which is: {1}.</value>
+  </data>
+  <data name="xxxx" xml:space="preserve">
+    <value>111</value>
+  </data>
 </root>
