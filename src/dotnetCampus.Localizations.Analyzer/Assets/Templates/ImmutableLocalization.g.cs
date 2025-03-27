@@ -3,10 +3,10 @@ using global::dotnetCampus.Localizations;
 
 namespace dotnetCampus.Localizations.Assets.Templates;
 
-partial class Localization
+partial class ImmutableLocalization
 {
-    private static PlaceholderLocalizedValues _default = new PlaceholderLocalizedValues(null!);
-    private static PlaceholderLocalizedValues _current = new PlaceholderLocalizedValues(null!);
+    private static readonly ImmutableLocalizedValues _default = GetOrCreateLocalizedValues("DEFAULT_IETF_LANGUAGE_TAG");
+    private static ImmutableLocalizedValues _current = GetOrCreateLocalizedValues("CURRENT_IETF_LANGUAGE_TAG");
 
     /// <summary>
     /// 获取默认的本地化字符串集。
@@ -37,16 +37,7 @@ partial class Localization
     /// <param name="languageTag">要设置的语言标签（推荐 IETF 语言标签）。</param>
     public static void SetCurrent(string languageTag)
     {
-        // <FLAG3>
-
-        // 无通知型。
         _current = (ImmutableLocalizedValues)Create(languageTag);
-
-        // 有通知型。
-        NotificationLocalizedValues notificationCurrent = _current;
-        notificationCurrent.SetProvider(GetOrCreateLocalizedStringProvider(languageTag));
-
-        // </FLAG3>
     }
 
     /// <summary>
@@ -61,7 +52,7 @@ partial class Localization
     /// </summary>
     /// <param name="languageTag">语言标签（推荐 IETF 语言标签）。</param>
     /// <returns></returns>
-    private static PlaceholderLocalizedValues GetOrCreateLocalizedValues(string languageTag)
+    private static ImmutableLocalizedValues GetOrCreateLocalizedValues(string languageTag)
     {
         if (_default is { } @default && languageTag.Equals("DEFAULT_IETF_LANGUAGE_TAG", StringComparison.OrdinalIgnoreCase))
         {
@@ -69,17 +60,10 @@ partial class Localization
         }
         if (_current is { } current && languageTag.Equals(current.LocalizedStringProvider.IetfLanguageTag, StringComparison.OrdinalIgnoreCase))
         {
-            return @current;
+            return current;
         }
-        return new PlaceholderLocalizedValues(Wrap(GetOrCreateLocalizedStringProvider(languageTag)));
+        return new ImmutableLocalizedValues(GetOrCreateLocalizedStringProvider(languageTag));
     }
-
-    /// <summary>
-    /// 包装一个 <see cref="ILocalizedStringProvider"/> 对象，使其根据开发者设置的是否允许语言项变更通知返回不同的类型。
-    /// </summary>
-    /// <param name="rawProvider">原始的 <see cref="ILocalizedStringProvider"/> 对象。</param>
-    /// <returns>包装后的 <see cref="ILocalizedStringProvider"/> 对象。</returns>
-    private static ILocalizedStringProvider Wrap(ILocalizedStringProvider rawProvider) => rawProvider;
 
     /// <summary>
     /// 创建指定语言标签的本地化字符串集。
@@ -96,7 +80,7 @@ partial class Localization
         {
             return current.LocalizedStringProvider;
         }
-        var provider = CreateLocalizedStringProvider(languageTag);
+        var provider = CreateLocalizedStringProviderCore(languageTag);
         while (provider is null)
         {
             var parentTag = new global::System.Globalization.CultureInfo(languageTag).Parent.Name;
@@ -104,7 +88,7 @@ partial class Localization
             {
                 break;
             }
-            provider = CreateLocalizedStringProvider(parentTag);
+            provider = CreateLocalizedStringProviderCore(parentTag);
         }
         if (provider is not null)
         {
@@ -117,7 +101,7 @@ partial class Localization
     /// 创建指定语言标签的本地化字符串集。
     /// </summary>
     /// <param name="languageTag">语言标签（推荐 IETF 语言标签）。</param>
-    private static ILocalizedStringProvider? CreateLocalizedStringProvider(string languageTag)
+    private static ILocalizedStringProvider? CreateLocalizedStringProviderCore(string languageTag)
     {
         return languageTag.ToLowerInvariant() switch
         {

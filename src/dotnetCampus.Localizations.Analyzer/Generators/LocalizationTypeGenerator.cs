@@ -49,24 +49,16 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
         }
 
         // 生成 Localization.g.cs
-        var localizationFile = GeneratorInfo.GetEmbeddedTemplateFile<Localization>();
+        var localizationFile = supportsNotifyChanged
+            ? GeneratorInfo.GetEmbeddedTemplateFile<NotificationLocalization>()
+            : GeneratorInfo.GetEmbeddedTemplateFile<ImmutableLocalization>();
         var originalText = ReplaceNamespaceAndTypeName(localizationFile.Content, typeNamespace, typeName);
         var localizedValuesTypeName = supportsNotifyChanged ? nameof(NotificationLocalizedValues) : nameof(ImmutableLocalizedValues);
         var defaultCode = originalText
-            .Replace(
-                "PlaceholderLocalizedValues _default = new PlaceholderLocalizedValues(null!);",
-                $"global::{GeneratorInfo.RootNamespace}.{localizedValuesTypeName} _default = GetOrCreateLocalizedValues(\"{defaultLanguage}\");")
-            .Replace(
-                "PlaceholderLocalizedValues _current = new PlaceholderLocalizedValues(null!);",
-                $"global::{GeneratorInfo.RootNamespace}.{localizedValuesTypeName} _current = GetOrCreateLocalizedValues({currentLanguage switch
-                {
-                    not null => $"\"{currentLanguage}\"",
-                    null => "global::System.Globalization.CultureInfo.CurrentUICulture.Name",
-                }});")
             .Replace("DEFAULT_IETF_LANGUAGE_TAG", defaultLanguage.ToLowerInvariant())
+            .Replace("\"CURRENT_IETF_LANGUAGE_TAG\"", currentLanguage is null ? "global::System.Globalization.CultureInfo.CurrentUICulture.Name" : $"\"{currentLanguage.ToLowerInvariant()}\"")
             .FlagReplace(GenerateCreateLocalizedValues(defaultLanguage, allLocalizationModels))
             .Flag2Replace(GenerateIetfLanguageTagList(allLocalizationModels.Keys))
-            .Flag3Replace(supportsNotifyChanged ? GenerateNotifyChangedSetCurrent() : GenerateImmutableSetCurrent())
             .Replace("ILocalizedValues", $"global::{GeneratorInfo.RootNamespace}.ILocalizedValues")
             .Replace("PlaceholderLocalizedValues", $" global::{GeneratorInfo.RootNamespace}.{localizedValuesTypeName}");
         if (supportsNotifyChanged)
@@ -125,19 +117,5 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
             typeName,
             sourceSpan.Slice(typeNameIndex + typeNameLength, sourceSpan.Length - typeNameIndex - typeNameLength).ToString()
         );
-    }
-
-    private string GenerateImmutableSetCurrent()
-    {
-        return """
-        _current = GetOrCreateLocalizedValues(languageTag);
-""";
-    }
-
-    private string GenerateNotifyChangedSetCurrent()
-    {
-        return """
-        _current.SetProvider(GetOrCreateLocalizedStringProvider(languageTag));
-""";
     }
 }

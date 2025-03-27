@@ -15,7 +15,7 @@ internal sealed class NotificationLocalizedValues(MutableLocalizedStringProvider
     /// <summary>
     /// 获取本地化字符串提供器。
     /// </summary>
-    public ILocalizedStringProvider LocalizedStringProvider => provider;
+    public ILocalizedStringProvider LocalizedStringProvider => provider.Provider;
 
     /// <summary>
     /// 在不改变 <see cref="LocalizedStringProvider"/> 实例的情况下，设置新的本地化字符串提供器，并通知所有的属性的变更。
