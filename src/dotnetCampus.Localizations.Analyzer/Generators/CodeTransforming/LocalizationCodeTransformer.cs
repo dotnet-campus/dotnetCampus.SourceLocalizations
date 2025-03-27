@@ -134,9 +134,9 @@ public interface ILocalizedValues_{{nodeTypeName}}
         return content
             .Replace("LOCALIZATION_TYPE_NAME", model.TypeName)
             .Replace("namespace dotnetCampus.Localizations.Assets.Templates;", $"namespace {GeneratorInfo.RootNamespace};")
-            .FlagReplace(string.Join("\n\n", GenerateImplementationPropertyLines(Tree)))
+            .FlagReplace(string.Concat(GenerateImplementationPropertyLines(Tree)))
             .Flag2Replace(string.Concat(Tree.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(x, 1, model.TypeName))))
-            .Flag3Replace(string.Join("\n\n", GeneratePropertyNotification(Tree)));
+            .Flag3Replace(string.Concat(GeneratePropertyNotification(Tree)));
     }
 
     private string RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(LocalizationTreeNode node, int depth, string typeName)
@@ -180,6 +180,7 @@ internal sealed partial class LocalizedValues_{{nodeTypeName}}(ILocalizedStringP
                 if (x.Item.ValueArgumentTypes.Length is 0)
                 {
                     return $"""
+
     /// <inheritdoc />
     public LocalizedString {x.IdentifierKey} => provider.Get0("{x.Item.Key}");
 """;
@@ -188,6 +189,7 @@ internal sealed partial class LocalizedValues_{{nodeTypeName}}(ILocalizedStringP
                 {
                     var genericTypes = string.Join(", ", x.Item.ValueArgumentTypes);
                     return $"""
+
     /// <inheritdoc />
     public LocalizedString<{genericTypes}> {x.IdentifierKey} => provider.Get{x.Item.ValueArgumentTypes.Length}<{genericTypes}>("{x.Item.Key}");
 """;
@@ -196,6 +198,7 @@ internal sealed partial class LocalizedValues_{{nodeTypeName}}(ILocalizedStringP
             else
             {
                 return $$"""
+
     public ILocalizedValues_{{identifierKey}} {{x.IdentifierKey}} { get; } = new LocalizedValues_{{identifierKey}}(provider);
 """;
             }
@@ -207,7 +210,7 @@ internal sealed partial class LocalizedValues_{{nodeTypeName}}(ILocalizedStringP
         return node.Children.Select(x =>
         {
             var identifierKey = x.GetFullIdentifierKey("_");
-            return $"            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(\"{identifierKey}\"));";
+            return $"\n            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(\"{identifierKey}\"));";
         });
     }
 

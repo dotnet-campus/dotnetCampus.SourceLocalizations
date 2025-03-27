@@ -8,7 +8,7 @@ namespace dotnetCampus.Localizations.Assets.Templates;
 
 [global::System.Diagnostics.DebuggerDisplay("[{LocalizedStringProvider.IetfLanguageTag}] LOCALIZATION_TYPE_NAME.???")]
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-public sealed class ImmutableLocalizedValues(ILocalizedStringProvider provider) : ILocalizedValues
+internal sealed class ImmutableLocalizedValues(ILocalizedStringProvider provider) : ILocalizedValues
 {
     /// <summary>
     /// 获取本地化字符串提供器。

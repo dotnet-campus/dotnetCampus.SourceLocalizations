@@ -68,7 +68,7 @@ public static class LocalizationGeneratingModelExtensions
             var namedArguments = attribute!.NamedArguments.ToImmutableDictionary();
             var defaultLanguage = namedArguments.GetValueOrDefault(nameof(Localization.Default)).Value?.ToString()!;
             var currentLanguage = namedArguments.GetValueOrDefault(nameof(Localization.Current)).Value?.ToString();
-            var supportsNotifyChanged = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.SupportsNotifyChanged)).Value?.Equals("true") is true;
+            var supportsNotifyChanged = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.SupportsNotifyChanged)).Value is true;
 
             // 创建模型时，分析器确保了这些值不为空。
             return new LocalizationGeneratingModel(rootNamespace, typeName, defaultLanguage, currentLanguage, supportsNotifyChanged);
