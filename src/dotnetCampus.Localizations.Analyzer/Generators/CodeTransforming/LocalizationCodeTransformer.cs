@@ -150,6 +150,15 @@ namespace {GeneratorInfo.RootNamespace};
         var nodeKeyName = depth is 0
             ? ""
             : "." + string.Join("_", node.IdentifierKey);
+        var basicTypeName = (depth is 0, false) switch
+        {
+            // 顶层，支持变更通知的。
+            (true, true) => "NotificationLocalizedValues",
+            // 顶层，不支持变更通知的。
+            (true, false) => "ImmutableLocalizedValues",
+            // 非顶层，统一不带前缀。是不可变的，也不需要变更通知。
+            _ => "LocalizedValues",
+        };
         var nodeTypeName = depth is 0
             ? ""
             : "_" + string.Join("_", node.FullIdentifierKey);
@@ -185,7 +194,7 @@ namespace {GeneratorInfo.RootNamespace};
 
 [global::System.Diagnostics.DebuggerDisplay("[{LocalizedStringProvider.IetfLanguageTag}] {{typeName}}{{nodeKeyName}}.???")]
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-internal sealed partial class LocalizedValues{{nodeTypeName}}(ILocalizedStringProvider provider) : ILocalizedValues{{nodeTypeName}}
+internal sealed partial class {{basicTypeName}}{{nodeTypeName}}(ILocalizedStringProvider provider) : ILocalizedValues{{nodeTypeName}}
 {
     /// <summary>
     /// 获取本地化字符串提供器。

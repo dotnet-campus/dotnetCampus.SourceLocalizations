@@ -3,8 +3,8 @@ namespace dotnetCampus.Localizations.Assets.Templates;
 
 partial class Localization
 {
-    private static LocalizedValues _default = new LocalizedValues(null!);
-    private static LocalizedValues _current = new LocalizedValues(null!);
+    private static ImmutableLocalizedValues _default = new ImmutableLocalizedValues(null!);
+    private static ImmutableLocalizedValues _current = new ImmutableLocalizedValues(null!);
 
     /// <summary>
     /// 获取默认的本地化字符串集。
@@ -41,7 +41,7 @@ partial class Localization
     /// 创建指定语言标签的本地化字符串集。
     /// </summary>
     /// <param name="languageTag">语言标签（推荐 IETF 语言标签）。</param>
-    private static LocalizedValues CreateLocalizedValues(string languageTag)
+    private static ImmutableLocalizedValues CreateLocalizedValues(string languageTag)
     {
         var lowerTag = languageTag.ToLowerInvariant();
         if (_default is { } @default && lowerTag == "DEFAULT_IETF_LANGUAGE_TAG")
@@ -51,7 +51,7 @@ partial class Localization
         return lowerTag switch
         {
             // <FLAG>
-            "en" => new LocalizedValues(null!),
+            "en" => new ImmutableLocalizedValues(null!),
             // </FLAG>
             _ => throw new global::System.ArgumentException($"The language tag {languageTag} is not supported.", nameof(languageTag)),
         };

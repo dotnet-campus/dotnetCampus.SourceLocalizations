@@ -1,5 +1,4 @@
 ﻿#nullable enable
-
 using ILocalizedStringProvider = global::dotnetCampus.Localizations.ILocalizedStringProvider;
 using LocalizedString = global::dotnetCampus.Localizations.LocalizedString;
 

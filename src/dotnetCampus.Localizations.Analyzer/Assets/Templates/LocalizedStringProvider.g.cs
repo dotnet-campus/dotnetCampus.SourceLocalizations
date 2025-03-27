@@ -1,7 +1,5 @@
 ﻿#nullable enable
-
 using global::System.Collections.Frozen;
-using global::System.Collections.Generic;
 
 namespace dotnetCampus.Localizations.Assets.Templates;
 
@@ -29,7 +27,7 @@ public class LocalizedStringProvider(ILocalizedStringProvider? fallback) : ILoca
         }
     }
 
-    private readonly FrozenDictionary<string, string> _strings = new Dictionary<string, string>
+    private readonly global::System.Collections.Frozen.FrozenDictionary<string, string> _strings = new global::System.Collections.Generic.Dictionary<string, string>
     {
         // <FLAG>
         { "A.A1", "文字" },

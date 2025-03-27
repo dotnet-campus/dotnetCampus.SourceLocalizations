@@ -38,6 +38,9 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
 
         var isIncludedByPackageReference = options.GlobalOptions.GetBoolean("LocalizationIsIncludedByPackageReference");
         var supportsNonIetfLanguageTag = options.GlobalOptions.GetBoolean("LocalizationSupportsNonIetfLanguageTag");
+        var allLocalizationModels = localizationFiles.GroupByIetfLanguageTag(supportsNonIetfLanguageTag)
+            .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models);
+        var allTags = allLocalizationModels.Keys.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
 
         if (!isIncludedByPackageReference)
         {
@@ -50,20 +53,20 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
         var originalText = ReplaceNamespaceAndTypeName(localizationFile.Content, typeNamespace, typeName);
         var defaultCode = originalText
             .Replace(
-                "LocalizedValues _default = new LocalizedValues(null!);",
-                $"global::{GeneratorInfo.RootNamespace}.LocalizedValues _default = CreateLocalizedValues(\"{defaultLanguage}\");")
+                "ImmutableLocalizedValues _default = new ImmutableLocalizedValues(null!);",
+                $"global::{GeneratorInfo.RootNamespace}.ImmutableLocalizedValues _default = CreateLocalizedValues(\"{defaultLanguage}\");")
             .Replace(
-                "LocalizedValues _current = new LocalizedValues(null!);",
-                $"global::{GeneratorInfo.RootNamespace}.LocalizedValues _current = CreateLocalizedValues({currentLanguage switch
+                "ImmutableLocalizedValues _current = new ImmutableLocalizedValues(null!);",
+                $"global::{GeneratorInfo.RootNamespace}.ImmutableLocalizedValues _current = CreateLocalizedValues({currentLanguage switch
                 {
                     not null => $"\"{currentLanguage}\"",
                     null => "global::System.Globalization.CultureInfo.CurrentUICulture.Name",
                 }});")
             .Replace("DEFAULT_IETF_LANGUAGE_TAG", defaultLanguage.ToLowerInvariant())
-            .FlagReplace(GenerateCreateLocalizedValues(defaultLanguage, localizationFiles, supportsNonIetfLanguageTag))
-            .Flag2Replace(GenerateIetfLanguageTagList(localizationFiles.GroupByIetfLanguageTag(supportsNonIetfLanguageTag).Select(x => x.IetfLanguageTag)))
+            .FlagReplace(GenerateCreateLocalizedValues(defaultLanguage, allLocalizationModels))
+            .Flag2Replace(GenerateIetfLanguageTagList(allLocalizationModels.Keys))
             .Replace("ILocalizedValues", $"global::{GeneratorInfo.RootNamespace}.ILocalizedValues")
-            .Replace(" LocalizedValues", $" global::{GeneratorInfo.RootNamespace}.LocalizedValues");
+            .Replace(" ImmutableLocalizedValues", $" global::{GeneratorInfo.RootNamespace}.ImmutableLocalizedValues");
         context.AddSource($"{typeName}.g.cs", SourceText.From(defaultCode, Encoding.UTF8));
     }
 
@@ -72,9 +75,9 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
 {string.Join("\n", languageTags.Select(x => $"        \"{x}\","))}
 """;
 
-    private string GenerateCreateLocalizedValues(string defaultIetfTag, ImmutableArray<LocalizationFileModel> models, bool supportsNonIetfLanguageTag) => $"""
+    private string GenerateCreateLocalizedValues(string defaultIetfTag, IReadOnlyDictionary<string, ImmutableArray<LocalizationFileModel>> models) => $"""
 
-{string.Join("\n", models.GroupByIetfLanguageTag(supportsNonIetfLanguageTag).Select(x => ConvertModelToPatternMatch(defaultIetfTag, x.IetfLanguageTag)))}
+{string.Join("\n", models.Select(x => ConvertModelToPatternMatch(defaultIetfTag, x.Key)))}
 """;
 
     private string ConvertModelToPatternMatch(string defaultIetfTag, string ietfTag)
@@ -84,7 +87,7 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
             ? "null"
             : "_default.LocalizedStringProvider";
         return $"""
-            "{ietfTag.ToLowerInvariant()}" => new global::{GeneratorInfo.RootNamespace}.LocalizedValues(new global::{GeneratorInfo.RootNamespace}.{nameof(LocalizedStringProvider)}_{tagIdentifier}({defaultProvider})),
+            "{ietfTag.ToLowerInvariant()}" => new global::{GeneratorInfo.RootNamespace}.ImmutableLocalizedValues(new global::{GeneratorInfo.RootNamespace}.{nameof(LocalizedStringProvider)}_{tagIdentifier}({defaultProvider})),
 """;
     }
 

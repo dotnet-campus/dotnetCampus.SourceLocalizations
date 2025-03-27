@@ -61,7 +61,7 @@ public class StringsGenerator : IIncrementalGenerator
             var transformer = new LocalizationCodeTransformer(group);
 
             var code = transformer.ToProviderCodeText(localizationType.Namespace, ietfLanguageTag);
-            context.AddSource($"{nameof(LocalizedStringProvider)}.{ietfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
+            context.AddSource($"Strings.{ietfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
 
             if (string.Equals(ietfLanguageTag, referenceLanguageTag, StringComparison.OrdinalIgnoreCase))
             {
@@ -69,7 +69,7 @@ public class StringsGenerator : IIncrementalGenerator
                 context.AddSource($"{nameof(ILocalizedValues)}.g.cs", SourceText.From(interfaceCode, Encoding.UTF8));
 
                 var implementationCode = transformer.ToImplementationCodeText(localizationType.TypeName);
-                context.AddSource($"{nameof(LocalizedValues)}.g.cs", SourceText.From(implementationCode, Encoding.UTF8));
+                context.AddSource("LocalizedValues.g.cs", SourceText.From(implementationCode, Encoding.UTF8));
             }
         }
     }

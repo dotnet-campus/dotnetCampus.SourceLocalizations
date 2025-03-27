@@ -1,12 +1,13 @@
-﻿#nullable enable
-
+#nullable enable
 using ILocalizedStringProvider = global::dotnetCampus.Localizations.ILocalizedStringProvider;
+using INotifyPropertyChanged = global::System.ComponentModel.INotifyPropertyChanged;
 using LocalizedString = global::dotnetCampus.Localizations.LocalizedString;
+using PropertyChangedEventHandler = global::System.ComponentModel.PropertyChangedEventHandler;
 
 namespace dotnetCampus.Localizations.Assets.Templates;
 
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-public sealed class LocalizedValues(ILocalizedStringProvider provider) : ILocalizedValues
+public sealed class ImmutableLocalizedValues(ILocalizedStringProvider provider) : ILocalizedValues
 {
     /// <summary>
     /// 获取本地化字符串提供器。
