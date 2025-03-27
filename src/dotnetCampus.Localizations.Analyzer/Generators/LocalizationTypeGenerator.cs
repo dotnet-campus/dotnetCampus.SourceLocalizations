@@ -59,9 +59,8 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
                     not null => $"\"{currentLanguage}\"",
                     null => "global::System.Globalization.CultureInfo.CurrentUICulture.Name",
                 }});")
-            .Replace("DEFAULT_IETF_LANGUAGE_TAG", defaultLanguage);
-        defaultCode = TemplateRegexes.FlagRegex.Replace(defaultCode, GenerateCreateLocalizedValues(defaultLanguage, localizationFiles, supportsNonIetfLanguageTag));
-        defaultCode = defaultCode
+            .Replace("DEFAULT_IETF_LANGUAGE_TAG", defaultLanguage)
+            .FlagReplace(GenerateCreateLocalizedValues(defaultLanguage, localizationFiles, supportsNonIetfLanguageTag))
             .Replace("ILocalizedValues", $"global::{GeneratorInfo.RootNamespace}.ILocalizedValues")
             .Replace(" LocalizedValues", $" global::{GeneratorInfo.RootNamespace}.LocalizedValues");
         context.AddSource($"{typeName}.g.cs", SourceText.From(defaultCode, Encoding.UTF8));
