@@ -37,7 +37,7 @@ partial class Localization
     /// <param name="languageTag">要设置的语言标签（推荐 IETF 语言标签）。</param>
     public static void SetCurrent(string languageTag)
     {
-        // <FLAG>
+        // <FLAG3>
 
         // 无通知型。
         _current = (ImmutableLocalizedValues)Create(languageTag);
@@ -46,7 +46,7 @@ partial class Localization
         NotificationLocalizedValues notificationCurrent = _current;
         notificationCurrent.SetProvider(CreateLocalizedStringProvider(languageTag));
 
-        // </FLAG>
+        // </FLAG3>
     }
 
     /// <summary>

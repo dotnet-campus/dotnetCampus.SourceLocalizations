@@ -66,6 +66,7 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
             .Replace("DEFAULT_IETF_LANGUAGE_TAG", defaultLanguage.ToLowerInvariant())
             .FlagReplace(GenerateCreateLocalizedValues(defaultLanguage, allLocalizationModels))
             .Flag2Replace(GenerateIetfLanguageTagList(allLocalizationModels.Keys))
+            .Flag3Replace(supportsNotifyChanged ? GenerateNotifyChangedSetCurrent() : GenerateImmutableSetCurrent())
             .Replace("ILocalizedValues", $"global::{GeneratorInfo.RootNamespace}.ILocalizedValues")
             .Replace("PlaceholderLocalizedValues", $" global::{GeneratorInfo.RootNamespace}.{localizedValuesTypeName}");
         context.AddSource($"{typeName}.g.cs", SourceText.From(defaultCode, Encoding.UTF8));
@@ -118,5 +119,19 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
             typeName,
             sourceSpan.Slice(typeNameIndex + typeNameLength, sourceSpan.Length - typeNameIndex - typeNameLength).ToString()
         );
+    }
+
+    private string GenerateImmutableSetCurrent()
+    {
+        return """
+        _current = CreateLocalizedValues(languageTag);
+""";
+    }
+
+    private string GenerateNotifyChangedSetCurrent()
+    {
+        return """
+        _current.SetProvider(CreateLocalizedStringProvider(languageTag));
+""";
     }
 }
