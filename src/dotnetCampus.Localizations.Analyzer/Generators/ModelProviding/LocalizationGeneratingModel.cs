@@ -9,6 +9,8 @@ namespace dotnetCampus.Localizations.Generators.ModelProviding;
 /// <param name="TypeName">类型的名称。</param>
 /// <param name="DefaultLanguage">默认语言的 IETF 语言标签。</param>
 /// <param name="CurrentLanguage">当前语言的 IETF 语言标签。</param>
+/// <param name="SupportsNotifyChanged">是否应该使用带变更通知的多语言类。</param>
 public readonly record struct LocalizationGeneratingModel(
     string Namespace, string TypeName,
-    string DefaultLanguage, string? CurrentLanguage);
+    string DefaultLanguage, string? CurrentLanguage,
+    bool SupportsNotifyChanged);

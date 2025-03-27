@@ -14,5 +14,5 @@ internal class Program
     }
 }
 
-[LocalizedConfiguration(Default = "zh-Hans")]
+[LocalizedConfiguration(Default = "zh-Hans", SupportsNotifyChanged = true)]
 internal partial class Lang;
