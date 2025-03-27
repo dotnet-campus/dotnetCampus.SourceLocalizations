@@ -34,7 +34,7 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
 
     private void Execute(SourceProductionContext context, ((LocalizationGeneratingModel Left, AnalyzerConfigOptionsProvider Right) Left, ImmutableArray<LocalizationFileModel> Right) values)
     {
-        var (((typeNamespace, typeName, defaultLanguage, currentLanguage, _), options), localizationFiles) = values;
+        var (((typeNamespace, typeName, defaultLanguage, currentLanguage, supportsNotifyChanged), options), localizationFiles) = values;
 
         var isIncludedByPackageReference = options.GlobalOptions.GetBoolean("LocalizationIsIncludedByPackageReference");
         var supportsNonIetfLanguageTag = options.GlobalOptions.GetBoolean("LocalizationSupportsNonIetfLanguageTag");
@@ -51,13 +51,14 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
         // 生成 Localization.g.cs
         var localizationFile = GeneratorInfo.GetEmbeddedTemplateFile<Localization>();
         var originalText = ReplaceNamespaceAndTypeName(localizationFile.Content, typeNamespace, typeName);
+        var localizedValuesTypeName = supportsNotifyChanged ? nameof(NotificationLocalizedValues) : nameof(ImmutableLocalizedValues);
         var defaultCode = originalText
             .Replace(
-                "ImmutableLocalizedValues _default = new ImmutableLocalizedValues(null!);",
-                $"global::{GeneratorInfo.RootNamespace}.ImmutableLocalizedValues _default = CreateLocalizedValues(\"{defaultLanguage}\");")
+                "PlaceholderLocalizedValues _default = new PlaceholderLocalizedValues(null!);",
+                $"global::{GeneratorInfo.RootNamespace}.{localizedValuesTypeName} _default = CreateLocalizedValues(\"{defaultLanguage}\");")
             .Replace(
-                "ImmutableLocalizedValues _current = new ImmutableLocalizedValues(null!);",
-                $"global::{GeneratorInfo.RootNamespace}.ImmutableLocalizedValues _current = CreateLocalizedValues({currentLanguage switch
+                "PlaceholderLocalizedValues _current = new PlaceholderLocalizedValues(null!);",
+                $"global::{GeneratorInfo.RootNamespace}.{localizedValuesTypeName} _current = CreateLocalizedValues({currentLanguage switch
                 {
                     not null => $"\"{currentLanguage}\"",
                     null => "global::System.Globalization.CultureInfo.CurrentUICulture.Name",
@@ -66,7 +67,7 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
             .FlagReplace(GenerateCreateLocalizedValues(defaultLanguage, allLocalizationModels))
             .Flag2Replace(GenerateIetfLanguageTagList(allLocalizationModels.Keys))
             .Replace("ILocalizedValues", $"global::{GeneratorInfo.RootNamespace}.ILocalizedValues")
-            .Replace(" ImmutableLocalizedValues", $" global::{GeneratorInfo.RootNamespace}.ImmutableLocalizedValues");
+            .Replace("PlaceholderLocalizedValues", $" global::{GeneratorInfo.RootNamespace}.{localizedValuesTypeName}");
         context.AddSource($"{typeName}.g.cs", SourceText.From(defaultCode, Encoding.UTF8));
     }
 
@@ -85,7 +86,7 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
             ? "null"
             : "_default.LocalizedStringProvider";
         return $"""
-            "{ietfTag.ToLowerInvariant()}" => new global::{GeneratorInfo.RootNamespace}.ImmutableLocalizedValues(new global::{GeneratorInfo.RootNamespace}.{nameof(LocalizedStringProvider)}_{tagIdentifier}({defaultProvider})),
+            "{ietfTag.ToLowerInvariant()}" => new global::{GeneratorInfo.RootNamespace}.{nameof(LocalizedStringProvider)}_{tagIdentifier}({defaultProvider}),
 """;
     }
 
