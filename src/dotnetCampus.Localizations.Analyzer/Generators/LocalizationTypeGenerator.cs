@@ -17,7 +17,7 @@ namespace dotnetCampus.Localizations.Generators;
 /// <example>
 /// 本生成器会为下方示例中的类型生成分部实现：
 /// <code>
-/// [LocalizedConfiguration(Default = "zh-hans", Current = "zh-hans")]
+/// [LocalizedConfiguration(Default = "zh-CN", Current = "zh-CN")]
 /// public static partial class Lang;
 /// </code>
 /// </example>
@@ -59,13 +59,18 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
                     not null => $"\"{currentLanguage}\"",
                     null => "global::System.Globalization.CultureInfo.CurrentUICulture.Name",
                 }});")
-            .Replace("DEFAULT_IETF_LANGUAGE_TAG", defaultLanguage);
-        defaultCode = TemplateRegexes.FlagRegex.Replace(defaultCode, GenerateCreateLocalizedValues(defaultLanguage, localizationFiles, supportsNonIetfLanguageTag));
-        defaultCode = defaultCode
+            .Replace("DEFAULT_IETF_LANGUAGE_TAG", defaultLanguage.ToLowerInvariant())
+            .FlagReplace(GenerateCreateLocalizedValues(defaultLanguage, localizationFiles, supportsNonIetfLanguageTag))
+            .Flag2Replace(GenerateIetfLanguageTagList(localizationFiles.GroupByIetfLanguageTag(supportsNonIetfLanguageTag).Select(x => x.IetfLanguageTag)))
             .Replace("ILocalizedValues", $"global::{GeneratorInfo.RootNamespace}.ILocalizedValues")
             .Replace(" LocalizedValues", $" global::{GeneratorInfo.RootNamespace}.LocalizedValues");
         context.AddSource($"{typeName}.g.cs", SourceText.From(defaultCode, Encoding.UTF8));
     }
+
+    private string GenerateIetfLanguageTagList(IEnumerable<string> languageTags) => $"""
+
+{string.Join("\n", languageTags.Select(x => $"        \"{x}\","))}
+""";
 
     private string GenerateCreateLocalizedValues(string defaultIetfTag, ImmutableArray<LocalizationFileModel> models, bool supportsNonIetfLanguageTag) => $"""
 
@@ -79,7 +84,7 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
             ? "null"
             : "_default.LocalizedStringProvider";
         return $"""
-            "{ietfTag}" => new global::{GeneratorInfo.RootNamespace}.LocalizedValues(new global::{GeneratorInfo.RootNamespace}.{nameof(LocalizedStringProvider)}_{tagIdentifier}({defaultProvider})),
+            "{ietfTag.ToLowerInvariant()}" => new global::{GeneratorInfo.RootNamespace}.LocalizedValues(new global::{GeneratorInfo.RootNamespace}.{nameof(LocalizedStringProvider)}_{tagIdentifier}({defaultProvider})),
 """;
     }
 

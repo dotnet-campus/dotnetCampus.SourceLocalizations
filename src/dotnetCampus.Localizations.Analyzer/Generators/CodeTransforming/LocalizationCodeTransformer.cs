@@ -214,9 +214,8 @@ internal sealed partial class LocalizedValues{{nodeTypeName}}(ILocalizedStringPr
         var code = template.Content
             .Replace($"namespace {template.Namespace};", $"namespace {GeneratorInfo.RootNamespace};")
             .Replace($"class {nameof(LocalizedStringProvider)}", $"class {nameof(LocalizedStringProvider)}_{typeName}")
-            .Replace("""IetfLanguageTag => "default";""", $"""IetfLanguageTag => "{ietfLanguageTag}";""");
-        var dictLines = LocalizationItems.Select(x => ConvertKeyValueToValueCodeLine(x.Key, x.Value));
-        code = TemplateRegexes.FlagRegex.Replace(code, string.Concat(dictLines));
+            .Replace("""IetfLanguageTag => "default";""", $"""IetfLanguageTag => "{ietfLanguageTag}";""")
+            .FlagReplace(string.Concat(LocalizationItems.Select(x => ConvertKeyValueToValueCodeLine(x.Key, x.Value))));
         return code;
     }
 
