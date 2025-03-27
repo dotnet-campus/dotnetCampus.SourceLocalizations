@@ -34,7 +34,7 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
 
     private void Execute(SourceProductionContext context, ((LocalizationGeneratingModel Left, AnalyzerConfigOptionsProvider Right) Left, ImmutableArray<LocalizationFileModel> Right) values)
     {
-        var (((typeNamespace, typeName, defaultLanguage, currentLanguage), options), localizationFiles) = values;
+        var (((typeNamespace, typeName, defaultLanguage, currentLanguage, _), options), localizationFiles) = values;
 
         var isIncludedByPackageReference = options.GlobalOptions.GetBoolean("LocalizationIsIncludedByPackageReference");
         var supportsNonIetfLanguageTag = options.GlobalOptions.GetBoolean("LocalizationSupportsNonIetfLanguageTag");
@@ -71,12 +71,10 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
     }
 
     private string GenerateIetfLanguageTagList(IEnumerable<string> languageTags) => $"""
-
 {string.Join("\n", languageTags.Select(x => $"        \"{x}\","))}
 """;
 
     private string GenerateCreateLocalizedValues(string defaultIetfTag, IReadOnlyDictionary<string, ImmutableArray<LocalizationFileModel>> models) => $"""
-
 {string.Join("\n", models.Select(x => ConvertModelToPatternMatch(defaultIetfTag, x.Key)))}
 """;
 

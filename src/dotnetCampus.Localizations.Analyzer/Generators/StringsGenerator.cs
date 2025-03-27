@@ -68,7 +68,7 @@ public class StringsGenerator : IIncrementalGenerator
                 var interfaceCode = transformer.ToInterfaceCodeText();
                 context.AddSource($"{nameof(ILocalizedValues)}.g.cs", SourceText.From(interfaceCode, Encoding.UTF8));
 
-                var implementationCode = transformer.ToImplementationCodeText(localizationType.TypeName);
+                var implementationCode = transformer.ToImplementationCodeText(localizationType);
                 context.AddSource("LocalizedValues.g.cs", SourceText.From(implementationCode, Encoding.UTF8));
             }
         }

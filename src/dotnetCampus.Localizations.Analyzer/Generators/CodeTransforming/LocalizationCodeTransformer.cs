@@ -69,10 +69,10 @@ namespace {GeneratorInfo.RootNamespace};
 
         var nodeTypeName = depth is 0
             ? ""
-            : "_" + string.Join("_", node.FullIdentifierKey);
+            : "_" + node.GetFullIdentifierKey("_");
         var propertyLines = node.Children.Select(x =>
         {
-            var identifierKey = string.Join("_", x.FullIdentifierKey);
+            var identifierKey = x.GetFullIdentifierKey("_");
             if (x.Children.Count is 0)
             {
                 if (x.Item.ValueArgumentTypes.Length is 0)
@@ -128,17 +128,18 @@ public{{(depth is 0 ? " partial" : "")}} interface ILocalizedValues{{nodeTypeNam
 
     #region Language Value Implementations
 
-    public string ToImplementationCodeText(string typeName) => $"""
-#nullable enable
-
-using global::dotnetCampus.Localizations;
-
-using ILocalizedStringProvider = global::dotnetCampus.Localizations.ILocalizedStringProvider;
-using LocalizedString = global::dotnetCampus.Localizations.LocalizedString;
-
-namespace {GeneratorInfo.RootNamespace};
-{RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(Tree, 0, typeName)}
-""";
+    public string ToImplementationCodeText(LocalizationGeneratingModel model)
+    {
+        var content = model.SupportsNotifyChanged
+            ? GeneratorInfo.GetEmbeddedTemplateFile<NotificationLocalizedValues>().Content
+            : GeneratorInfo.GetEmbeddedTemplateFile<ImmutableLocalizedValues>().Content;
+        return content
+            .Replace("LOCALIZATION_TYPE_NAME", model.TypeName)
+            .Replace("namespace dotnetCampus.Localizations.Assets.Templates;", $"namespace {GeneratorInfo.RootNamespace};")
+            .FlagReplace(string.Join("\n\n", GeneratePropertyLines(Tree)))
+            .Flag2Replace(string.Concat(Tree.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(x, 1, model.TypeName))))
+            .Flag3Replace(string.Join("\n\n", GeneratePropertyNotification(Tree)));
+    }
 
     private string RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(LocalizationTreeNode node, int depth, string typeName)
     {
@@ -147,24 +148,35 @@ namespace {GeneratorInfo.RootNamespace};
             return "";
         }
 
-        var nodeKeyName = depth is 0
-            ? ""
-            : "." + string.Join("_", node.IdentifierKey);
-        var basicTypeName = (depth is 0, false) switch
+        var nodeKeyName = node.GetFullIdentifierKey(".");
+        var nodeTypeName = node.GetFullIdentifierKey("_");
+        return $$"""
+
+[global::System.Diagnostics.DebuggerDisplay("[{LocalizedStringProvider.IetfLanguageTag}] {{typeName}}.{{nodeKeyName}}.???")]
+[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+internal sealed partial class LocalizedValues_{{nodeTypeName}}(ILocalizedStringProvider provider) : ILocalizedValues_{{nodeTypeName}}
+{
+    /// <summary>
+    /// 获取本地化字符串提供器。
+    /// </summary>
+    public ILocalizedStringProvider LocalizedStringProvider => provider;
+
+{{string.Join("\n\n", GeneratePropertyLines(node))}}
+
+    /// <summary>
+    /// 获取非完整本地化字符串键的字符串表示。
+    /// </summary>
+    public override string ToString() => "{{typeName}}.{{nodeKeyName}}.";
+}
+{{string.Concat(node.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(x, depth + 1, typeName)))}}
+""";
+    }
+
+    private static IEnumerable<string> GeneratePropertyLines(LocalizationTreeNode node)
+    {
+        return node.Children.Select(x =>
         {
-            // 顶层，支持变更通知的。
-            (true, true) => "NotificationLocalizedValues",
-            // 顶层，不支持变更通知的。
-            (true, false) => "ImmutableLocalizedValues",
-            // 非顶层，统一不带前缀。是不可变的，也不需要变更通知。
-            _ => "LocalizedValues",
-        };
-        var nodeTypeName = depth is 0
-            ? ""
-            : "_" + string.Join("_", node.FullIdentifierKey);
-        var propertyLines = node.Children.Select(x =>
-        {
-            var identifierKey = string.Join("_", x.FullIdentifierKey);
+            var identifierKey = x.GetFullIdentifierKey("_");
             if (x.Children.Count is 0)
             {
                 if (x.Item.ValueArgumentTypes.Length is 0)
@@ -190,26 +202,15 @@ namespace {GeneratorInfo.RootNamespace};
 """;
             }
         });
-        return $$"""
+    }
 
-[global::System.Diagnostics.DebuggerDisplay("[{LocalizedStringProvider.IetfLanguageTag}] {{typeName}}{{nodeKeyName}}.???")]
-[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-internal sealed partial class {{basicTypeName}}{{nodeTypeName}}(ILocalizedStringProvider provider) : ILocalizedValues{{nodeTypeName}}
-{
-    /// <summary>
-    /// 获取本地化字符串提供器。
-    /// </summary>
-    public ILocalizedStringProvider LocalizedStringProvider => provider;
-
-{{string.Join("\n\n", propertyLines)}}
-
-    /// <summary>
-    /// 获取非完整本地化字符串键的字符串表示。
-    /// </summary>
-    public override string ToString() => "{{typeName}}{{nodeKeyName}}.";
-}
-{{string.Concat(node.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(x, depth + 1, typeName)))}}
-""";
+    private IEnumerable<string> GeneratePropertyNotification(LocalizationTreeNode node)
+    {
+        return node.Children.Select(x =>
+        {
+            var identifierKey = x.GetFullIdentifierKey("_");
+            return $"            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(\"{identifierKey}\"));";
+        });
     }
 
     #endregion
@@ -224,14 +225,14 @@ internal sealed partial class {{basicTypeName}}{{nodeTypeName}}(ILocalizedString
             .Replace($"namespace {template.Namespace};", $"namespace {GeneratorInfo.RootNamespace};")
             .Replace($"class {nameof(LocalizedStringProvider)}", $"class {nameof(LocalizedStringProvider)}_{typeName}")
             .Replace("""IetfLanguageTag => "default";""", $"""IetfLanguageTag => "{ietfLanguageTag}";""")
-            .FlagReplace(string.Concat(LocalizationItems.Select(x => ConvertKeyValueToValueCodeLine(x.Key, x.Value))));
+            .FlagReplace(string.Join("\n", LocalizationItems.Select(x => ConvertKeyValueToValueCodeLine(x.Key, x.Value))));
         return code;
     }
 
     private string ConvertKeyValueToValueCodeLine(string key, string value)
     {
         var escapedValue = SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(value)).ToFullString();
-        return $"\n        {{ \"{key}\", {escapedValue} }},";
+        return $"        {{ \"{key}\", {escapedValue} }},";
     }
 
     private string ConvertKeyValueToProperty(string key, string value)
@@ -250,7 +251,7 @@ internal sealed partial class {{basicTypeName}}{{nodeTypeName}}(ILocalizedString
             else
             {
                 // 非叶子节点，提供接口。
-                yield return string.Join("_", node.FullIdentifierKey);
+                yield return node.GetFullIdentifierKey("_");
                 foreach (var child in EnumerateConvertTreeNodeToInterfaceNames(node.Children))
                 {
                     yield return child;
@@ -268,8 +269,8 @@ internal sealed partial class {{basicTypeName}}{{nodeTypeName}}(ILocalizedString
     /// </summary>
     /// <param name="item">本地化项。</param>
     /// <param name="identifierKey">适用于 C# 标识符的当前节点的键。</param>
-    /// <param name="fullIdentifierKey">适用于 C# 标识符的当前节点的完整键（包含从根到此节点的完整键路径，以“_”分隔）。</param>
-    private class LocalizationTreeNode(LocalizationItem item, string identifierKey, string fullIdentifierKey)
+    /// <param name="identifierKeyParts">适用于 C# 标识符的从根到当前节点的完整键。</param>
+    private class LocalizationTreeNode(LocalizationItem item, string identifierKey, ImmutableArray<string> identifierKeyParts)
     {
         /// <summary>
         /// 本地化项。
@@ -282,9 +283,12 @@ internal sealed partial class {{basicTypeName}}{{nodeTypeName}}(ILocalizedString
         public string IdentifierKey => identifierKey;
 
         /// <summary>
-        /// 适用于 C# 标识符的当前节点的完整键（包含从根到此节点的完整键路径，以“_”分隔）。
+        /// 适用于 C# 标识符的当前节点的完整键（包含从根到此节点的完整键路径，以“<paramref name="separator"/>”分隔）。
         /// </summary>
-        public string FullIdentifierKey => fullIdentifierKey;
+        public string GetFullIdentifierKey(string separator)
+        {
+            return string.Join(separator, identifierKeyParts);
+        }
 
         /// <summary>
         /// 子节点。
@@ -306,7 +310,7 @@ internal sealed partial class {{basicTypeName}}{{nodeTypeName}}(ILocalizedString
                 var child = current.Children.FirstOrDefault(x => x.IdentifierKey == part);
                 if (child is null)
                 {
-                    child = new LocalizationTreeNode(localizationItem, part, string.Join("_", parts.Take(i + 1)));
+                    child = new LocalizationTreeNode(localizationItem, part, [..parts.Take(i + 1)]);
                     current.Children.Add(child);
                 }
                 current = child;
@@ -333,7 +337,7 @@ internal sealed partial class {{basicTypeName}}{{nodeTypeName}}(ILocalizedString
 
                 if (keyParts.Length is 1)
                 {
-                    root.Children.Add(new LocalizationTreeNode(item, item.Key, item.Key));
+                    root.Children.Add(new LocalizationTreeNode(item, item.Key, [item.Key]));
                     continue;
                 }
 
