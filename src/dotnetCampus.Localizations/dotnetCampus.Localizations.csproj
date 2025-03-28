@@ -11,6 +11,7 @@
     <Deterministic>true</Deterministic>
     <PackageId>dotnetCampus.SourceLocalizations</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!--
       因为有 MSBuild Tasks 打包到 tasks 文件夹下，所以忽略不在 lib 文件夹的警告。
@@ -49,6 +50,7 @@
   <!-- 生成 NuGet 包。 -->
   <Target Name="_IncludeAllDependencies" BeforeTargets="_GetPackageFiles">
     <ItemGroup>
+      <None Include="$(RepositoryRoot)README.md" Pack="true" PackagePath="\"/>
       <Content Include="Package\build\Package.props" Pack="True" PackagePath="build\$(PackageId).props" />
       <Content Include="Package\build\Package.targets" Pack="True" PackagePath="build\$(PackageId).targets" />
       <Content Include="..\..\artifacts\bin\dotnetCampus.Localizations.Analyzer\$(Configuration)\**\*" Pack="True" PackagePath="analyzers\dotnet\cs" />
