@@ -20,7 +20,7 @@ static void Main()
 
 - Source Generators
     - [x] Generate C# codes
-    - [ ] Generate properties for implementation types (so that reflections on types can get localized properties which is very important for WPF Bindings)
+    - [x] Generate properties for implementation types (so that reflections on types can get localized properties which is very important for WPF Bindings)
     - [ ] Generate localized types for each language item which contains more than one arguments (This fixes different argument orders among different languages.)
 - File formats
     - [x] TOML
@@ -29,7 +29,7 @@ static void Main()
     - [x] Avalonia      `😉 We look forward to your better suggestions.`
     - [ ] MAUI          `😶‍🌫️ Not tested yet`
     - [x] Uno Platform  `😉 We look forward to your better suggestions.`
-    - [ ] Wpf           `😶‍🌫️ Not tested yet`
+    - [x] Wpf           `😉 We look forward to your better suggestions.`
 - Diagnostics Analyzers and Code Fixes
     - [ ] Detect (and generate) missing localization keys
     - [ ] Detect (and remove) unused localization keys
