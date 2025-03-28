@@ -36,6 +36,9 @@ public class StringsGenerator : IIncrementalGenerator
 
         var isIncludedByPackageReference = options.GlobalOptions.GetBoolean("LocalizationIsIncludedByPackageReference");
         var supportsNonIetfLanguageTag = options.GlobalOptions.GetBoolean("LocalizationSupportsNonIetfLanguageTag");
+        var allLocalizationModels = localizationFiles.GroupByIetfLanguageTag(supportsNonIetfLanguageTag)
+            .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models);
+        var allTags = allLocalizationModels.Keys.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
 
         if (!isIncludedByPackageReference)
         {
@@ -43,20 +46,33 @@ public class StringsGenerator : IIncrementalGenerator
             return;
         }
 
-        foreach (var (ietfLanguageTag, group) in localizationFiles.GroupByIetfLanguageTag(supportsNonIetfLanguageTag))
+        var referenceLanguageTag = allTags.Contains(localizationType.DefaultLanguage)
+            ? localizationType.DefaultLanguage
+            : allTags.FirstOrDefault() ?? null;
+        if (referenceLanguageTag is null)
         {
+            // 没有找到任何语言标签，无法生成代码。
+            return;
+        }
+
+        foreach (var pair in allLocalizationModels)
+        {
+            var (ietfLanguageTag, group) = (pair.Key, pair.Value);
             var transformer = new LocalizationCodeTransformer(group);
 
             var code = transformer.ToProviderCodeText(localizationType.Namespace, ietfLanguageTag);
-            context.AddSource($"{nameof(LocalizedStringProvider)}.{ietfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
+            context.AddSource($"Strings.{ietfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
 
-            if (string.Equals(ietfLanguageTag, localizationType.DefaultLanguage, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(ietfLanguageTag, referenceLanguageTag, StringComparison.OrdinalIgnoreCase))
             {
-                var interfaceCode = transformer.ToInterfaceCodeText();
+                var interfaceCode = transformer.ToInterfaceCodeText(localizationType);
                 context.AddSource($"{nameof(ILocalizedValues)}.g.cs", SourceText.From(interfaceCode, Encoding.UTF8));
 
-                var implementationCode = transformer.ToImplementationCodeText(localizationType.TypeName);
-                context.AddSource($"{nameof(LocalizedValues)}.g.cs", SourceText.From(implementationCode, Encoding.UTF8));
+                var immutableImplementationCode = transformer.ToImplementationCodeText(localizationType, false);
+                context.AddSource("LocalizedValues.immutable.g.cs", SourceText.From(immutableImplementationCode, Encoding.UTF8));
+
+                var notifiableImplementationCode = transformer.ToImplementationCodeText(localizationType, true);
+                context.AddSource("LocalizedValues.notifiable.g.cs", SourceText.From(notifiableImplementationCode, Encoding.UTF8));
             }
         }
     }

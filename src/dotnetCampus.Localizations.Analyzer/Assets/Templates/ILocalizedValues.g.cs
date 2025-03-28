@@ -1,5 +1,5 @@
 ﻿#nullable enable
-
+using global::dotnetCampus.Localizations;
 using ILocalizedStringProvider = global::dotnetCampus.Localizations.ILocalizedStringProvider;
 using LocalizedString = global::dotnetCampus.Localizations.LocalizedString;
 
@@ -14,3 +14,7 @@ public partial interface ILocalizedValues
     // ILocalizedValues_A_A3 A3 { get; }
     // </FLAG>
 }
+
+// <FLAG2>
+// 在此处递归生成树状结构的本地化值。
+// </FLAG2>

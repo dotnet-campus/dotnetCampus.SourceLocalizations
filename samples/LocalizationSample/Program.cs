@@ -1,4 +1,5 @@
-﻿using dotnetCampus.Localizations;
+﻿using System.ComponentModel;
+using dotnetCampus.Localizations;
 
 namespace LocalizationSample;
 
@@ -11,8 +12,20 @@ internal class Program
 
         var a = Lang.Current.A.A2.ToString(1);
         Console.WriteLine(a);
+
+        if (Lang.Current is INotifyPropertyChanged changed)
+        {
+            changed.PropertyChanged += ChangedOnPropertyChanged;
+        }
+
+        Lang.SetCurrent("en");
+    }
+
+    private static void ChangedOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        Console.WriteLine($"语言项变更：{e.PropertyName}");
     }
 }
 
-[LocalizedConfiguration(Default = "zh-CN")]
+[LocalizedConfiguration(Default = "zh-Hans", SupportsNotification = true)]
 internal partial class Lang;

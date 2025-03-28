@@ -20,7 +20,7 @@ static void Main()
 
 - Source Generators
     - [x] Generate C# codes
-    - [ ] Generate properties for implementation types (so that reflections on types can get localized properties which is very important for WPF Bindings)
+    - [x] Generate properties for implementation types (so that reflections on types can get localized properties which is very important for WPF Bindings)
     - [ ] Generate localized types for each language item which contains more than one arguments (This fixes different argument orders among different languages.)
 - File formats
     - [x] TOML
@@ -29,7 +29,7 @@ static void Main()
     - [x] Avalonia      `😉 We look forward to your better suggestions.`
     - [ ] MAUI          `😶‍🌫️ Not tested yet`
     - [x] Uno Platform  `😉 We look forward to your better suggestions.`
-    - [ ] Wpf           `😶‍🌫️ Not tested yet`
+    - [x] Wpf           `😉 We look forward to your better suggestions.`
 - Diagnostics Analyzers and Code Fixes
     - [ ] Detect (and generate) missing localization keys
     - [ ] Detect (and remove) unused localization keys
@@ -66,14 +66,6 @@ PressAnyKeyToExit = "按任意键退出..."
 
 The file name must conform to the [IETF BCP 47 standard](https://en.wikipedia.org/wiki/IETF_language_tag).
 
-Add these files to your project `csproj` file:
-
-```xml
-<ItemGroup>
-    <LocalizationFile Include="Localizations\**\*.toml" />
-</ItemGroup>
-```
-
 ### 2. Write a localization class
 
 ```csharp
@@ -83,11 +75,15 @@ using dotnetCampus.SourceLocalizations;
 namespace SampleApp;
 
 // The default language is used to generate localization interfaces, so it must be the most complete one.
-[LocalizedConfiguration(Default = "en", Current = "zh-hans")]
+// The current language is optional. If not specified, the current OS UI language will be used.
+// The notification is optional. If true, when the current language changes, the UI will be notified to update the localization text.
+[LocalizedConfiguration(Default = "en", Current = "zh-hans", SupportsNotification = false)]
 public partial class LocalizedText;
 ```
 
 ### 3. Use the generated code
+
+Console, library or any other UI framework:
 
 ```csharp
 // Program.cs
@@ -100,11 +96,29 @@ static void Main()
 }
 ```
 
+---
+
+Avalonia:
+
 ```xml
 <!-- Avalonia MainWindow.axaml -->
 <TextBlock Text="{Binding App.Title, Source={x:Static l:LocalizedText.Current}}" />
 <TextBlock Text="{Binding App.Description, Source={x:Static l:LocalizedText.Current}}" />
 ```
+
+---
+
+WPF:
+
+```xml
+<!-- WPF MainWindow.xaml -->
+<TextBlock Text="{Binding App.Title, Source={x:Static l:LocalizedText.Current}, Mode=OneWay}" />
+<TextBlock Text="{Binding App.Description, Source={x:Static l:LocalizedText.Current}, Mode=OneWay}" />
+```
+
+---
+
+Uno Platform:
 
 ```xml
 <!-- Uno Platform MainPage.xaml -->
@@ -115,13 +129,10 @@ static void Main()
 ```csharp
 // Uno Platform MainPage.xaml.cs
 using dotnetCampus.Localizations;
-
 namespace dotnetCampus.SampleUnoApp;
-
 public sealed partial class MainPage : Page
 {
     public MainPage() => InitializeComponent();
-
     // IMPORTANT: The Lang property must be public.
     public ILocalizedValues Lang => global::dotnetCampus.SampleUnoApp.Localizations.LocalizedText.Current;
 }

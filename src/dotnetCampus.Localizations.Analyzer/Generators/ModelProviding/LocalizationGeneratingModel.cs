@@ -1,3 +1,5 @@
+using Microsoft.CodeAnalysis;
+
 namespace dotnetCampus.Localizations.Generators.ModelProviding;
 
 /// <summary>
@@ -7,4 +9,8 @@ namespace dotnetCampus.Localizations.Generators.ModelProviding;
 /// <param name="TypeName">类型的名称。</param>
 /// <param name="DefaultLanguage">默认语言的 IETF 语言标签。</param>
 /// <param name="CurrentLanguage">当前语言的 IETF 语言标签。</param>
-public readonly record struct LocalizationGeneratingModel(string Namespace, string TypeName, string DefaultLanguage, string? CurrentLanguage);
+/// <param name="SupportsNotification">是否支持在修改当前语言时，通知所有的语言项的变更。</param>
+public readonly record struct LocalizationGeneratingModel(
+    string Namespace, string TypeName,
+    string DefaultLanguage, string? CurrentLanguage,
+    bool SupportsNotification);

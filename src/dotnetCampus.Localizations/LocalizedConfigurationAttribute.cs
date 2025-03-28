@@ -20,4 +20,9 @@ public class LocalizedConfigurationAttribute : Attribute
     /// </remarks>
 #endif
     public string? Current { get; init; }
+
+    /// <summary>
+    /// 是否支持在修改当前语言时，通知所有的语言项的变更。
+    /// </summary>
+    public bool SupportsNotification { get; init; }
 }
