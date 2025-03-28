@@ -53,10 +53,10 @@ public class LocalizationCodeTransformer
         return GeneratorInfo.GetEmbeddedTemplateFile<ILocalizedValues>().Content
             .Replace("namespace dotnetCampus.Localizations.Assets.Templates;", $"namespace {GeneratorInfo.RootNamespace};")
             .FlagReplace(string.Join("\n\n", string.Join("\n\n", GenerateInterfacePropertyLines(Tree))))
-            .Flag2Replace(string.Concat(Tree.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode(x, 1))));
+            .Flag2Replace(string.Concat(Tree.Children.Select(RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode)));
     }
 
-    private string RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode(LocalizationTreeNode node, int depth)
+    private string RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode(LocalizationTreeNode node)
     {
         if (node.Children.Count is 0)
         {
@@ -71,7 +71,7 @@ public interface ILocalizedValues_{{nodeTypeName}}
 {
 {{string.Join("\n\n", GenerateInterfacePropertyLines(node))}}
 }
-{{string.Concat(node.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode(x, depth + 1)))}}
+{{string.Concat(node.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode(x)))}}
 """;
     }
 
@@ -126,21 +126,21 @@ public interface ILocalizedValues_{{nodeTypeName}}
 
     #region Language Value Implementations
 
-    public string ToImplementationCodeText(LocalizationGeneratingModel model)
+    public string ToImplementationCodeText(LocalizationGeneratingModel model, bool isNotifiable)
     {
-        var content = model.SupportsNotifyChanged
-            ? GeneratorInfo.GetEmbeddedTemplateFile<NotificationLocalizedValues>().Content
+        var typePrefix = isNotifiable ? "Notifiable" : "Immutable";
+        var content = isNotifiable
+            ? GeneratorInfo.GetEmbeddedTemplateFile<NotifiableLocalizedValues>().Content
             : GeneratorInfo.GetEmbeddedTemplateFile<ImmutableLocalizedValues>().Content;
         return content
             .Replace("LOCALIZATION_TYPE_NAME", model.TypeName)
             .Replace("namespace dotnetCampus.Localizations.Assets.Templates;", $"namespace {GeneratorInfo.RootNamespace};")
-            .FlagReplace(string.Concat(GenerateImplementationPropertyLines(Tree)))
-            .Flag2Replace(string.Concat(Tree.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(x, 1, model.TypeName))))
-            .Flag3Replace(GenerateSetProvider(Tree));
-        //.Flag3Replace(string.Concat(GeneratePropertyNotification(Tree)));
+            .FlagReplace(string.Join("\n", GenerateImplementationPropertyLines(Tree, typePrefix)))
+            .Flag2Replace(string.Concat(Tree.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(x, model.TypeName, typePrefix, isNotifiable))))
+            .Flag3Replace(GenerateSetProvider(Tree, typePrefix));
     }
 
-    private string GenerateSetProvider(LocalizationTreeNode node)
+    private string GenerateSetProvider(LocalizationTreeNode node, string typePrefix)
     {
         return $$"""
 
@@ -164,12 +164,12 @@ public interface ILocalizedValues_{{nodeTypeName}}
         LocalizedStringProvider = newProvider;
 
         // 递归通知所有叶子节点引发变更事件。
-{{string.Join("\n", GeneratePropertyNotification(node))}}
+{{string.Join("\n", GeneratePropertyChanged(node, typePrefix))}}
     }
 """;
     }
 
-    private string RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(LocalizationTreeNode node, int depth, string typeName)
+    private string RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(LocalizationTreeNode node, string typeName, string typePrefix, bool isNotifiable)
     {
         if (node.Children.Count is 0)
         {
@@ -182,27 +182,25 @@ public interface ILocalizedValues_{{nodeTypeName}}
 
 [global::System.Diagnostics.DebuggerDisplay("[{LocalizedStringProvider.IetfLanguageTag}] {{typeName}}.{{nodeKeyName}}.???")]
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-internal sealed partial class LocalizedValues_{{nodeTypeName}}(ILocalizedStringProvider provider) : ILocalizedValues_{{nodeTypeName}}, INotifyPropertyChanged
+internal sealed partial class {{typePrefix}}LocalizedValues_{{nodeTypeName}}(ILocalizedStringProvider provider) : ILocalizedValues_{{nodeTypeName}}{{(isNotifiable ? ", INotifyPropertyChanged" : "")}}
 {
     /// <summary>
     /// 获取本地化字符串提供器。
     /// </summary>
-    public ILocalizedStringProvider LocalizedStringProvider { get; private set; } = provider;
-{{GenerateSetProvider(node)}}
-{{string.Join("\n", GenerateImplementationPropertyLines(node))}}
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
+    public ILocalizedStringProvider LocalizedStringProvider {{(isNotifiable ? "{ get; private set; } =" : "=>")}} provider;
+{{(isNotifiable ? GenerateSetProvider(node, typePrefix) : "")}}
+{{string.Join("\n", GenerateImplementationPropertyLines(node, typePrefix))}}
+{{(isNotifiable ? "\n    public event PropertyChangedEventHandler? PropertyChanged;\n" : "")}}
     /// <summary>
     /// 获取非完整本地化字符串键的字符串表示。
     /// </summary>
     public override string ToString() => "{{typeName}}.{{nodeKeyName}}.";
 }
-{{string.Concat(node.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(x, depth + 1, typeName)))}}
+{{string.Concat(node.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(x, typeName, typePrefix, isNotifiable)))}}
 """;
     }
 
-    private static IEnumerable<string> GenerateImplementationPropertyLines(LocalizationTreeNode node)
+    private static IEnumerable<string> GenerateImplementationPropertyLines(LocalizationTreeNode node, string typePrefix)
     {
         return node.Children.Select(x =>
         {
@@ -231,19 +229,19 @@ internal sealed partial class LocalizedValues_{{nodeTypeName}}(ILocalizedStringP
             {
                 return $$"""
 
-    public ILocalizedValues_{{identifierKey}} {{x.IdentifierKey}} { get; } = new LocalizedValues_{{identifierKey}}(provider);
+    public ILocalizedValues_{{identifierKey}} {{x.IdentifierKey}} { get; } = new {{typePrefix}}LocalizedValues_{{identifierKey}}(provider);
 """;
             }
         });
     }
 
-    private IEnumerable<string> GeneratePropertyNotification(LocalizationTreeNode node)
+    private IEnumerable<string> GeneratePropertyChanged(LocalizationTreeNode node, string typePrefix)
     {
         return node.Children.Select(x =>
         {
             return x.Children.Count is 0
                 ? $"        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(\"{x.IdentifierKey}\"));"
-                : $"        ((LocalizedValues_{x.GetFullIdentifierKey("_")}){x.IdentifierKey}).SetProvider(newProvider);";
+                : $"        (({typePrefix}LocalizedValues_{x.GetFullIdentifierKey("_")}){x.IdentifierKey}).SetProvider(newProvider);";
         });
     }
 

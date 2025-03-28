@@ -50,10 +50,10 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
 
         // 生成 Localization.g.cs
         var localizationFile = supportsNotifyChanged
-            ? GeneratorInfo.GetEmbeddedTemplateFile<NotificationLocalization>()
+            ? GeneratorInfo.GetEmbeddedTemplateFile<NotifiableLocalization>()
             : GeneratorInfo.GetEmbeddedTemplateFile<ImmutableLocalization>();
         var originalText = ReplaceNamespaceAndTypeName(localizationFile.Content, typeNamespace, typeName);
-        var localizedValuesTypeName = supportsNotifyChanged ? nameof(NotificationLocalizedValues) : nameof(ImmutableLocalizedValues);
+        var localizedValuesTypeName = supportsNotifyChanged ? nameof(NotifiableLocalizedValues) : nameof(ImmutableLocalizedValues);
         var defaultCode = originalText
             .Replace("DEFAULT_IETF_LANGUAGE_TAG", defaultLanguage.ToLowerInvariant())
             .Replace("\"CURRENT_IETF_LANGUAGE_TAG\"", currentLanguage is null ? "global::System.Globalization.CultureInfo.CurrentUICulture.Name" : $"\"{currentLanguage.ToLowerInvariant()}\"")

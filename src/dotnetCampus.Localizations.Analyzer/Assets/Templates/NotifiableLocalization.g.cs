@@ -3,10 +3,10 @@ using global::dotnetCampus.Localizations;
 
 namespace dotnetCampus.Localizations.Assets.Templates;
 
-partial class NotificationLocalization
+partial class NotifiableLocalization
 {
-    private static readonly NotificationLocalizedValues _default = new NotificationLocalizedValues(CreateLocalizedStringProvider("DEFAULT_IETF_LANGUAGE_TAG"));
-    private static NotificationLocalizedValues _current = new NotificationLocalizedValues(CreateLocalizedStringProvider("CURRENT_IETF_LANGUAGE_TAG"));
+    private static readonly ImmutableLocalizedValues _default = new ImmutableLocalizedValues(CreateLocalizedStringProvider("DEFAULT_IETF_LANGUAGE_TAG"));
+    private static NotifiableLocalizedValues _current = new NotifiableLocalizedValues(CreateLocalizedStringProvider("CURRENT_IETF_LANGUAGE_TAG"));
 
     /// <summary>
     /// 获取默认的本地化字符串集。
@@ -45,7 +45,7 @@ partial class NotificationLocalization
     /// </summary>
     /// <param name="languageTag">语言标签（推荐 IETF 语言标签）。</param>
     /// <returns></returns>
-    public static ILocalizedValues Create(string languageTag) => new NotificationLocalizedValues(CreateLocalizedStringProvider(languageTag));
+    public static ILocalizedValues Create(string languageTag) => new NotifiableLocalizedValues(CreateLocalizedStringProvider(languageTag));
 
     /// <summary>
     /// 创建指定语言标签的本地化字符串集。

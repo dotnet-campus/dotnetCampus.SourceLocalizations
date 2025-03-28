@@ -9,7 +9,7 @@ namespace dotnetCampus.Localizations.Assets.Templates;
 
 [global::System.Diagnostics.DebuggerDisplay("[{LocalizedStringProvider.IetfLanguageTag}] LOCALIZATION_TYPE_NAME.???")]
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-internal sealed class NotificationLocalizedValues(ILocalizedStringProvider provider) : ILocalizedValues, INotifyPropertyChanged
+internal sealed class NotifiableLocalizedValues(ILocalizedStringProvider provider) : ILocalizedValues, INotifyPropertyChanged
 {
     /// <summary>
     /// 获取本地化字符串提供器。

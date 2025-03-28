@@ -9,5 +9,5 @@ internal sealed class PlaceholderLocalizedValues(ILocalizedStringProvider provid
 
     public static implicit operator ImmutableLocalizedValues(PlaceholderLocalizedValues value) => null!;
     public static implicit operator PlaceholderLocalizedValues(ImmutableLocalizedValues value) => null!;
-    public static implicit operator NotificationLocalizedValues(PlaceholderLocalizedValues value) => null!;
+    public static implicit operator NotifiableLocalizedValues(PlaceholderLocalizedValues value) => null!;
 }
