@@ -22,7 +22,7 @@ public class LocalizedConfigurationAttribute : Attribute
     public string? Current { get; init; }
 
     /// <summary>
-    /// 是否支持在程序运行时动态修改并自动更新语言项。
+    /// 是否支持在修改当前语言时，通知所有的语言项的变更。
     /// </summary>
-    public bool SupportsNotifyChanged { get; init; }
+    public bool SupportsNotification { get; init; }
 }
