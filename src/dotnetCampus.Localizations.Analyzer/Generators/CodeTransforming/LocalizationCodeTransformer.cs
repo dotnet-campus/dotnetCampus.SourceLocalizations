@@ -137,10 +137,10 @@ public interface ILocalizedValues_{{nodeTypeName}}
             .Replace("namespace dotnetCampus.Localizations.Assets.Templates;", $"namespace {GeneratorInfo.RootNamespace};")
             .FlagReplace(string.Join("\n", GenerateImplementationPropertyLines(Tree, typePrefix)))
             .Flag2Replace(string.Concat(Tree.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(x, model.TypeName, typePrefix, isNotifiable))))
-            .Flag3Replace(GenerateSetProvider(Tree, typePrefix));
+            .Flag3Replace(GenerateSetProvider(Tree, typePrefix, isNotifiable));
     }
 
-    private string GenerateSetProvider(LocalizationTreeNode node, string typePrefix)
+    private string GenerateSetProvider(LocalizationTreeNode node, string typePrefix, bool isNotifiable)
     {
         return $$"""
 
@@ -149,7 +149,7 @@ public interface ILocalizedValues_{{nodeTypeName}}
     /// </summary>
     /// <param name="newProvider">新的本地化字符串提供器。</param>
     /// <exception cref="ArgumentNullException">当 <paramref name="newProvider"/> 为 null 时抛出。</exception>
-    internal void SetProvider(ILocalizedStringProvider newProvider)
+    internal {{(isNotifiable ? "async global::System.Threading.Tasks.ValueTask" : "void")}} SetProvider(ILocalizedStringProvider newProvider)
     {
         if (newProvider is null)
         {
@@ -164,7 +164,7 @@ public interface ILocalizedValues_{{nodeTypeName}}
         LocalizedStringProvider = newProvider;
 
         // 递归通知所有叶子节点引发变更事件。
-{{string.Join("\n", GeneratePropertyChanged(node, typePrefix))}}
+{{string.Join("\n", GeneratePropertyChanged(node, typePrefix, isNotifiable))}}
     }
 """;
     }
@@ -188,7 +188,7 @@ internal sealed partial class {{typePrefix}}LocalizedValues_{{nodeTypeName}}(ILo
     /// 获取本地化字符串提供器。
     /// </summary>
     public ILocalizedStringProvider LocalizedStringProvider {{(isNotifiable ? "{ get; private set; } =" : "=>")}} provider;
-{{(isNotifiable ? GenerateSetProvider(node, typePrefix) : "")}}
+{{(isNotifiable ? GenerateSetProvider(node, typePrefix, isNotifiable) : "")}}
 {{string.Join("\n", GenerateImplementationPropertyLines(node, typePrefix))}}
 {{(isNotifiable ? "\n    public event PropertyChangedEventHandler? PropertyChanged;\n" : "")}}
     /// <summary>
@@ -235,13 +235,13 @@ internal sealed partial class {{typePrefix}}LocalizedValues_{{nodeTypeName}}(ILo
         });
     }
 
-    private IEnumerable<string> GeneratePropertyChanged(LocalizationTreeNode node, string typePrefix)
+    private IEnumerable<string> GeneratePropertyChanged(LocalizationTreeNode node, string typePrefix, bool isNotifiable)
     {
         return node.Children.Select(x =>
         {
             return x.Children.Count is 0
                 ? $"        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(\"{x.IdentifierKey}\"));"
-                : $"        (({typePrefix}LocalizedValues_{x.GetFullIdentifierKey("_")}){x.IdentifierKey}).SetProvider(newProvider);";
+                : $"        {(isNotifiable ? "await " : "")}(({typePrefix}LocalizedValues_{x.GetFullIdentifierKey("_")}){x.IdentifierKey}).SetProvider(newProvider);";
         });
     }
 

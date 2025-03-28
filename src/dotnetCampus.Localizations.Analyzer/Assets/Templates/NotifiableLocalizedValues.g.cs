@@ -22,7 +22,7 @@ internal sealed class NotifiableLocalizedValues(ILocalizedStringProvider provide
     /// </summary>
     /// <param name="newProvider">新的本地化字符串提供器。</param>
     /// <exception cref="ArgumentNullException">当 <paramref name="newProvider"/> 为 null 时抛出。</exception>
-    internal void SetProvider(ILocalizedStringProvider newProvider)
+    internal async global::System.Threading.Tasks.ValueTask SetProvider(ILocalizedStringProvider newProvider)
     {
         if (newProvider is null)
         {
@@ -38,6 +38,7 @@ internal sealed class NotifiableLocalizedValues(ILocalizedStringProvider provide
 
         // 在此处为所有的属性添加 PropertyChanged 事件。
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
+        await global::System.Threading.Tasks.Task.Yield();
     }
     // </FLAG3>
 

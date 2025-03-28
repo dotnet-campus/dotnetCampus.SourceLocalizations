@@ -58,9 +58,9 @@ partial class NotifiableLocalization
     /// 此方法会更新当前实例的字符串提供器，并触发属性变更通知，
     /// 所有绑定到 <see cref="Current"/> 的UI元素将自动更新。
     /// </remarks>
-    public static void SetCurrent(string languageTag)
+    public static async global::System.Threading.Tasks.ValueTask SetCurrent(string languageTag)
     {
-        _current.SetProvider(CreateLocalizedStringProvider(languageTag));
+        await _current.SetProvider(CreateLocalizedStringProvider(languageTag));
     }
 
     /// <summary>
