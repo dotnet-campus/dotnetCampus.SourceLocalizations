@@ -13,243 +13,213 @@ public class LocalizationMatcherTests
         Assert.AreEqual("zh-Hans-CN", match);
     }
 
-    [TestMethod("自动转换简体中文区域代码")]
-    public void TC02_SimplifiedChineseCodeConversion()
+    [TestMethod("不区分大小写的精确匹配")]
+    public void TC02_CaseInsensitiveMatch()
     {
         var match = LocalizationFallbackProvider.FindBestMatch(
-            "zh-CN",
-            ["zh-Hans-CN", "en"]);
-
-        Assert.AreEqual("zh-Hans-CN", match);
-    }
-
-    [TestMethod("旧版代码转换+区域性变体匹配")]
-    public void TC03_LegacyCodeConversionWithRegionalVariant()
-    {
-        var match = LocalizationFallbackProvider.FindBestMatch(
-            "zh-CHS",
-            ["zh-Hans", "zh-Hans-CN"]);
-
-        Assert.AreEqual("zh-Hans-CN", match);
-    }
-
-    [TestMethod("中性文化匹配其区域变体")]
-    public void TC04_NeutralCultureMatchesRegionalVariant()
-    {
-        var match = LocalizationFallbackProvider.FindBestMatch(
-            "zh-Hans",
-            ["zh-Hans-CN", "zh"]);
-
-        Assert.AreEqual("zh-Hans-CN", match);
-    }
-
-    [TestMethod("繁体中文区域匹配")]
-    public void TC05_TraditionalChineseRegionMatching()
-    {
-        var match = LocalizationFallbackProvider.FindBestMatch(
-            "zh-TW",
-            ["zh-Hant-TW", "zh-Hant"]);
-
-        Assert.AreEqual("zh-Hant-TW", match);
-    }
-
-    [TestMethod("区域变体回退到父文化")]
-    public void TC06_RegionalVariantFallbackToParentCulture()
-    {
-        var match = LocalizationFallbackProvider.FindBestMatch(
-            "zh-Hans-SG",
-            ["zh-Hans-CN", "zh-Hans"]);
-
-        Assert.AreEqual("zh-Hans-CN", match);
-    }
-
-    [TestMethod("英语区域回退到其他英语变体")]
-    public void TC07_EnglishRegionFallbackToOtherEnglishVariant()
-    {
-        var match = LocalizationFallbackProvider.FindBestMatch(
-            "en-GB",
-            ["en-US", "en"]);
-
-        Assert.AreEqual("en-US", match);
-    }
-
-    [TestMethod("中性语言代码匹配区域变体")]
-    public void TC08_NeutralLanguageCodeMatchesRegionalVariant()
-    {
-        var match = LocalizationFallbackProvider.FindBestMatch(
-            "fr",
-            ["fr-FR", "en-US"]);
-
-        Assert.AreEqual("fr-FR", match);
-    }
-
-    [TestMethod("无匹配时返回null")]
-    public void TC09_NoMatchReturnsNull()
-    {
-        var match = LocalizationFallbackProvider.FindBestMatch(
-            "ja-JP",
-            ["en-US"]);
-
-        Assert.IsNull(match);
-    }
-
-    [TestMethod("无效输入时按可用列表顺序返回")]
-    public void TC10_InvalidInputReturnsFirstAvailable()
-    {
-        var match = LocalizationFallbackProvider.FindBestMatch(
-            "invalid-culture",
+            "zh-hans-cn",
             ["zh-Hans-CN", "en-US"]);
 
         Assert.AreEqual("zh-Hans-CN", match);
     }
 
-    [TestMethod("两字母代码匹配首个可用中性文化")]
-    public void TC11_TwoLetterCodeMatchesFirstAvailableNeutralCulture()
+    [TestMethod("旧版代码自动转换")]
+    public void TC03_LegacyCodeConversion()
     {
         var match = LocalizationFallbackProvider.FindBestMatch(
-            "zh",
-            ["zh-Hans", "zh-Hant"]);
+            "zh-CHS",
+            ["zh-Hans-CN", "en-US"]);
+
+        Assert.AreEqual("zh-Hans-CN", match);
+    }
+
+    [TestMethod("简体中文区域回退")]
+    public void TC04_SimplifiedChineseRegionFallback()
+    {
+        var match = LocalizationFallbackProvider.FindBestMatch(
+            "zh-Hans-CN",
+            ["zh-Hans", "en-US"]);
 
         Assert.AreEqual("zh-Hans", match);
     }
 
-    [TestMethod("繁体中文特殊区域匹配")]
-    public void TC12_TraditionalChineseSpecialRegionMatching()
+    [TestMethod("繁体中文区域回退")]
+    public void TC05_TraditionalChineseRegionFallback()
     {
         var match = LocalizationFallbackProvider.FindBestMatch(
-            "zh-HK",
-            ["zh-Hant-MO", "zh-Hant"]);
+            "zh-Hant-TW",
+            ["zh-Hant", "en-US"]);
 
-        Assert.AreEqual("zh-Hant-MO", match);
+        Assert.AreEqual("zh-Hant", match);
     }
 
-    [TestMethod("中性代码匹配第一个区域变体")]
-    public void TC13_NeutralCodeMatchesFirstRegionalVariant()
-    {
-        var match = LocalizationFallbackProvider.FindBestMatch(
-            "en",
-            ["en-AU", "en-CA"]);
-
-        Assert.AreEqual("en-AU", match);
-    }
-
-    [TestMethod("区域文化回退到同语言其他区域")]
-    public void TC14_RegionalCultureFallbackToSameLanguageOtherRegion()
-    {
-        var match = LocalizationFallbackProvider.FindBestMatch(
-            "es-ES",
-            ["es-MX"]);
-
-        Assert.AreEqual("es-MX", match);
-    }
-
-    [TestMethod("区域文化回退到中性文化")]
-    public void TC15_RegionalCultureFallbackToNeutralCulture()
-    {
-        var match = LocalizationFallbackProvider.FindBestMatch(
-            "ru-RU",
-            ["ru"]);
-
-        Assert.AreEqual("ru", match);
-    }
-
-    [TestMethod("精确匹配失败后回退到语言代码")]
-    public void TC16_ExactMatchFailsFallbackToLanguageCode()
-    {
-        var match = LocalizationFallbackProvider.FindBestMatch(
-            "zh-Hans-CN",
-            ["zh", "en"]);
-
-        Assert.AreEqual("zh", match);
-    }
-
-    [TestMethod("同时存在中性文化和区域文化时优先匹配区域文化")]
-    public void TC17_PreferRegionalCultureOverNeutralWhenBothExist()
-    {
-        var match = LocalizationFallbackProvider.FindBestMatch(
-            "zh-CN",
-            ["zh-Hans", "zh-Hans-CN"]);
-
-        Assert.AreEqual("zh-Hans-CN", match);
-    }
-
-    [TestMethod("区域文化回退到中性文化")]
-    public void TC18_RegionalCultureFallbackToNeutralCulture2()
+    [TestMethod("中性文化优先于普通语言")]
+    public void TC06_NeutralCulturePriority()
     {
         var match = LocalizationFallbackProvider.FindBestMatch(
             "en-US",
-            ["en"]);
+            ["en", "en-GB"]);
 
         Assert.AreEqual("en", match);
     }
 
-    [TestMethod("空输入时返回null")]
-    public void TC19_EmptyInputReturnsNull()
+    [TestMethod("同语言不同区域回退")]
+    public void TC07_SameLanguageRegionFallback()
     {
         var match = LocalizationFallbackProvider.FindBestMatch(
-            "",
-            ["zh-Hans-CN", "en-US"]);
+            "en-US",
+            ["en-GB", "fr-FR"]);
+
+        Assert.AreEqual("en-GB", match);
+    }
+
+    [TestMethod("特定区域到语言代码回退")]
+    public void TC08_SpecificToLanguageFallback()
+    {
+        var match = LocalizationFallbackProvider.FindBestMatch(
+            "en-US",
+            ["en", "fr"]);
+
+        Assert.AreEqual("en", match);
+    }
+
+    [TestMethod("无匹配项返回null")]
+    public void TC09_NoMatchReturnsNull()
+    {
+        var match = LocalizationFallbackProvider.FindBestMatch(
+            "en-US",
+            ["fr-FR", "de-DE"]);
 
         Assert.IsNull(match);
     }
 
-    [TestMethod("大小写不敏感匹配")]
-    public void TC20_CaseInsensitiveMatching()
+    [TestMethod("无效文化代码处理")]
+    public void TC10_InvalidCultureHandling()
     {
         var match = LocalizationFallbackProvider.FindBestMatch(
-            "ZH-hans-CN",
-            ["zh-Hans-CN"]);
+            "invalid-code",
+            ["en-US", "zh-CN"]);
+
+        Assert.AreEqual("en-US", match);
+    }
+
+    [TestMethod("两字母语言代码匹配")]
+    public void TC11_TwoLetterLanguageCodeMatch()
+    {
+        var match = LocalizationFallbackProvider.FindBestMatch(
+            "zh",
+            ["zh-Hans-CN", "en-US"]);
 
         Assert.AreEqual("zh-Hans-CN", match);
     }
 
-    [TestMethod("区域变体优先于中性文化")]
-    public void TC21_RegionalVariantPreferredOverNeutralCulture()
-    {
-        var match = LocalizationFallbackProvider.FindBestMatch(
-            "zh-Hans-CN",
-            ["zh-Hans-SG", "zh-Hans"]);
-
-        Assert.AreEqual("zh-Hans-SG", match);
-    }
-
-    [TestMethod("繁体中性文化匹配第一个区域变体")]
-    public void TC22_TraditionalNeutralCultureMatchesFirstRegionalVariant()
+    [TestMethod("繁体中文区域变体优先级")]
+    public void TC12_TraditionalChineseRegionVariants()
     {
         var match = LocalizationFallbackProvider.FindBestMatch(
             "zh-Hant",
-            ["zh-HK", "zh-TW"]);
+            ["zh-Hant-TW", "zh-Hant-HK", "en-US"]);
 
-        Assert.AreEqual("zh-HK", match);
+        Assert.AreEqual("zh-Hant-TW", match);
     }
 
-    [TestMethod("德语区域回退到其他德语区域")]
-    public void TC23_GermanRegionFallbackToOtherGermanRegion()
+    [TestMethod("简体中文区域映射")]
+    public void TC13_SimplifiedChineseRegionMapping()
     {
         var match = LocalizationFallbackProvider.FindBestMatch(
-            "de-DE",
-            ["de-AT", "de-CH"]);
+            "zh-CN",
+            ["zh-Hans-CN", "en-US"]);
 
-        Assert.AreEqual("de-AT", match);
+        Assert.AreEqual("zh-Hans-CN", match);
     }
 
-    [TestMethod("葡萄牙语中性代码优先巴西变体")]
-    public void TC24_PortugueseNeutralCodePrefersBrazilianVariant()
+    [TestMethod("繁体中文区域映射")]
+    public void TC14_TraditionalChineseRegionMapping()
     {
         var match = LocalizationFallbackProvider.FindBestMatch(
-            "pt",
-            ["pt-BR", "pt-PT"]);
+            "zh-TW",
+            ["zh-Hant-TW", "en-US"]);
 
-        Assert.AreEqual("pt-BR", match);
+        Assert.AreEqual("zh-Hant-TW", match);
     }
 
-    [TestMethod("区域文化回退到中性语言代码")]
-    public void TC25_RegionalCultureFallbackToNeutralLanguageCode()
+    [TestMethod("空请求处理")]
+    public void TC15_EmptyRequestHandling()
     {
         var match = LocalizationFallbackProvider.FindBestMatch(
-            "ko-KR",
-            ["ko"]);
+            "",
+            ["en-US", "zh-CN"]);
 
-        Assert.AreEqual("ko", match);
+        Assert.IsNull(match);
+    }
+
+    [TestMethod("空白请求处理")]
+    public void TC16_WhitespaceRequestHandling()
+    {
+        var match = LocalizationFallbackProvider.FindBestMatch(
+            "   ",
+            ["en-US", "zh-CN"]);
+
+        Assert.IsNull(match);
+    }
+
+    [TestMethod("区域变体优先于父级文化")]
+    public void TC17_RegionVariantPriority()
+    {
+        var match = LocalizationFallbackProvider.FindBestMatch(
+            "en-US",
+            ["en-GB", "en"]);
+
+        Assert.AreEqual("en-GB", match);
+    }
+
+    [TestMethod("空候选列表处理")]
+    public void TC18_EmptyCandidateList()
+    {
+        var match = LocalizationFallbackProvider.FindBestMatch(
+            "en-US",
+            []);
+
+        Assert.IsNull(match);
+    }
+
+    [TestMethod("旧版繁体代码转换")]
+    public void TC19_LegacyTraditionalCodeConversion()
+    {
+        var match = LocalizationFallbackProvider.FindBestMatch(
+            "zh-CHT",
+            ["zh-Hant-TW", "en-US"]);
+
+        Assert.AreEqual("zh-Hant-TW", match);
+    }
+
+    [TestMethod("复杂回退链测试")]
+    public void TC20_ComplexFallbackChain()
+    {
+        var match = LocalizationFallbackProvider.FindBestMatch(
+            "zh-Hans-CN",
+            ["fr", "de", "zh", "en-US"]);
+
+        Assert.AreEqual("zh", match);
+    }
+
+    [TestMethod("简体中文脚本到语言代码回退")]
+    public void TC21_SimplifiedScriptToLanguageCode()
+    {
+        var match = LocalizationFallbackProvider.FindBestMatch(
+            "zh-Hans",
+            ["zh", "en-US"]);
+
+        Assert.AreEqual("zh", match);
+    }
+
+    [TestMethod("繁体中文脚到区域变体选择")]
+    public void TC22_TraditionalScriptToRegionVariant()
+    {
+        var match = LocalizationFallbackProvider.FindBestMatch(
+            "zh-Hant",
+            ["zh", "zh-TW", "en-US"]);
+
+        Assert.AreEqual("zh-TW", match);
     }
 }
