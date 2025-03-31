@@ -137,3 +137,56 @@ public sealed partial class MainPage : Page
     public ILocalizedValues Lang => global::dotnetCampus.SampleUnoApp.Localizations.LocalizedText.Current;
 }
 ```
+
+## Advanced Usage
+
+If you want to add real-time language switching support, you can modify the `LocalizedText` class as follows:
+
+```csharp
+[LocalizedConfiguration(Default = "en-US", SupportsNotification = true)]
+public static partial class LocalizedText
+{
+    public static AppBuilder UseCompiledLang(this AppBuilder appBuilder)
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
+        }
+        return appBuilder;
+    }
+
+    [SupportedOSPlatform("windows")]
+    private static void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+    {
+        if (e.Category is UserPreferenceCategory.Locale)
+        {
+            // Retrieve the current language settings from the registry.
+            //
+            // Compared to CultureInfo.CurrentUICulture.Name or Win32 API's GetUserDefaultUILanguage, the registry can get updated standard language tags,
+            // and supports user-defined language preferences without needing to log off.
+            // Note: Even restarting the application will get the old settings; only logging off the system will get the new ones.
+            var languageNames = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64)
+                .OpenSubKey(@"Control Panel\International\User Profile", false)?
+                .GetValue("Languages", null) as IReadOnlyList<string>;
+            if (languageNames?[0] is { } name)
+            {
+                Dispatcher.UIThread.InvokeAsync(async () =>
+                {
+                    await SetCurrent(name);
+                }, DispatcherPriority.Background);
+            }
+        }
+    }
+}
+```
+
+Then, you can use the `UseCompiledLang` method in your `App.xaml.cs` file:
+
+```csharp
+public static AppBuilder BuildAvaloniaApp()
+    => AppBuilder.Configure<App>()
+        .UsePlatformDetect()
+        .UseCompiledLang()
+        .XxxOthers()
+    ;
+```

@@ -118,6 +118,7 @@ partial class ImmutableLocalization
             return provider;
         }
         var fallbackTag = global::dotnetCampus.Localizations.Helpers.LocalizationHelper.MatchWithFallback(languageTag, SupportedLanguageTags);
+        provider = fallbackTag is null ? null : CreateLocalizedStringProviderCore(fallbackTag);
         if (provider is not null)
         {
             return provider;
