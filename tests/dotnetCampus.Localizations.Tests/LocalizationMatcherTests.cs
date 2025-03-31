@@ -1,4 +1,6 @@
-﻿namespace dotnetCampus.Localizations.Tests;
+﻿using dotnetCampus.Localizations.Helpers;
+
+namespace dotnetCampus.Localizations.Tests;
 
 [TestClass]
 public class LocalizationMatcherTests
@@ -6,7 +8,7 @@ public class LocalizationMatcherTests
     [TestMethod("直接精确匹配")]
     public void TC01_ExactMatch()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "zh-Hans-CN",
             ["zh-Hans-CN", "en-US"]);
 
@@ -16,7 +18,7 @@ public class LocalizationMatcherTests
     [TestMethod("不区分大小写的精确匹配")]
     public void TC02_CaseInsensitiveMatch()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "zh-hans-cn",
             ["zh-Hans-CN", "en-US"]);
 
@@ -26,7 +28,7 @@ public class LocalizationMatcherTests
     [TestMethod("旧版代码自动转换")]
     public void TC03_LegacyCodeConversion()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "zh-CHS",
             ["zh-Hans-CN", "en-US"]);
 
@@ -36,7 +38,7 @@ public class LocalizationMatcherTests
     [TestMethod("简体中文区域回退")]
     public void TC04_SimplifiedChineseRegionFallback()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "zh-Hans-CN",
             ["zh-Hans", "en-US"]);
 
@@ -46,7 +48,7 @@ public class LocalizationMatcherTests
     [TestMethod("繁体中文区域回退")]
     public void TC05_TraditionalChineseRegionFallback()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "zh-Hant-TW",
             ["zh-Hant", "en-US"]);
 
@@ -56,7 +58,7 @@ public class LocalizationMatcherTests
     [TestMethod("中性文化优先于普通语言")]
     public void TC06_NeutralCulturePriority()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "en-US",
             ["en", "en-GB"]);
 
@@ -66,7 +68,7 @@ public class LocalizationMatcherTests
     [TestMethod("同语言不同区域回退")]
     public void TC07_SameLanguageRegionFallback()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "en-US",
             ["en-GB", "fr-FR"]);
 
@@ -76,7 +78,7 @@ public class LocalizationMatcherTests
     [TestMethod("特定区域到语言代码回退")]
     public void TC08_SpecificToLanguageFallback()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "en-US",
             ["en", "fr"]);
 
@@ -86,7 +88,7 @@ public class LocalizationMatcherTests
     [TestMethod("无匹配项返回null")]
     public void TC09_NoMatchReturnsNull()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "en-US",
             ["fr-FR", "de-DE"]);
 
@@ -96,7 +98,7 @@ public class LocalizationMatcherTests
     [TestMethod("无效文化代码处理")]
     public void TC10_InvalidCultureHandling()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "invalid-code",
             ["en-US", "zh-CN"]);
 
@@ -106,7 +108,7 @@ public class LocalizationMatcherTests
     [TestMethod("两字母语言代码匹配")]
     public void TC11_TwoLetterLanguageCodeMatch()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "zh",
             ["zh-Hans-CN", "en-US"]);
 
@@ -116,7 +118,7 @@ public class LocalizationMatcherTests
     [TestMethod("繁体中文区域变体优先级")]
     public void TC12_TraditionalChineseRegionVariants()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "zh-Hant",
             ["zh-Hant-TW", "zh-Hant-HK", "en-US"]);
 
@@ -126,7 +128,7 @@ public class LocalizationMatcherTests
     [TestMethod("简体中文区域映射")]
     public void TC13_SimplifiedChineseRegionMapping()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "zh-CN",
             ["zh-Hans-CN", "en-US"]);
 
@@ -136,7 +138,7 @@ public class LocalizationMatcherTests
     [TestMethod("繁体中文区域映射")]
     public void TC14_TraditionalChineseRegionMapping()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "zh-TW",
             ["zh-Hant-TW", "en-US"]);
 
@@ -146,7 +148,7 @@ public class LocalizationMatcherTests
     [TestMethod("空请求处理")]
     public void TC15_EmptyRequestHandling()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "",
             ["en-US", "zh-CN"]);
 
@@ -156,7 +158,7 @@ public class LocalizationMatcherTests
     [TestMethod("空白请求处理")]
     public void TC16_WhitespaceRequestHandling()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "   ",
             ["en-US", "zh-CN"]);
 
@@ -166,7 +168,7 @@ public class LocalizationMatcherTests
     [TestMethod("区域变体优先于父级文化")]
     public void TC17_RegionVariantPriority()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "en-US",
             ["en-GB", "en"]);
 
@@ -176,7 +178,7 @@ public class LocalizationMatcherTests
     [TestMethod("空候选列表处理")]
     public void TC18_EmptyCandidateList()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "en-US",
             []);
 
@@ -186,7 +188,7 @@ public class LocalizationMatcherTests
     [TestMethod("旧版繁体代码转换")]
     public void TC19_LegacyTraditionalCodeConversion()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "zh-CHT",
             ["zh-Hant-TW", "en-US"]);
 
@@ -196,7 +198,7 @@ public class LocalizationMatcherTests
     [TestMethod("复杂回退链测试")]
     public void TC20_ComplexFallbackChain()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "zh-Hans-CN",
             ["fr", "de", "zh", "en-US"]);
 
@@ -206,7 +208,7 @@ public class LocalizationMatcherTests
     [TestMethod("简体中文脚本到语言代码回退")]
     public void TC21_SimplifiedScriptToLanguageCode()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "zh-Hans",
             ["zh", "en-US"]);
 
@@ -216,7 +218,7 @@ public class LocalizationMatcherTests
     [TestMethod("繁体中文脚到区域变体选择")]
     public void TC22_TraditionalScriptToRegionVariant()
     {
-        var match = LocalizationFallbackProvider.FindBestMatch(
+        var match = LocalizationHelper.MatchWithFallback(
             "zh-Hant",
             ["zh", "zh-TW", "en-US"]);
 

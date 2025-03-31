@@ -5,7 +5,7 @@
 
 using System.Globalization;
 
-namespace dotnetCampus.Localizations;
+namespace dotnetCampus.Localizations.Helpers;
 
 /// <summary>
 /// 提供符合 BCP-47 标准的区域性回退匹配服务。<br/>
@@ -16,7 +16,7 @@ namespace dotnetCampus.Localizations;
 /// <item>区域性变体自动扩展（zh→zh-Hans→zh-Hans-CN）</item>
 /// </list>
 /// </summary>
-public static class LocalizationFallbackProvider
+internal static class LocalizationFallbackProvider
 {
     private static readonly Dictionary<string, string> LegacyMappings = new(StringComparer.OrdinalIgnoreCase)
     {
