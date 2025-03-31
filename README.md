@@ -188,7 +188,7 @@ public static partial class LocalizedText
         var languageNames = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64)
             .OpenSubKey(@"Control Panel\International\User Profile", false)?
             .GetValue("Languages", null) as IReadOnlyList<string>;
-        return languageNames?[0];
+        return languageNames?.FirstOrDefault();
     }
 }
 ```
