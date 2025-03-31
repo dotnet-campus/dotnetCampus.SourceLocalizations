@@ -49,7 +49,9 @@ internal sealed class NotifiableLocalizedValues(ILocalizedStringProvider provide
     // public ILocalizedValues_A_A3 A3 { get; } = new LocalizedValues_A_A3(provider);
     // </FLAG>
 
+#pragma warning disable CS0067
     public event PropertyChangedEventHandler? PropertyChanged;
+#pragma warning restore CS0067
 
     /// <summary>
     /// 获取非完整本地化字符串键的字符串表示。

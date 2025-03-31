@@ -113,15 +113,11 @@ partial class ImmutableLocalization
             return current.LocalizedStringProvider;
         }
         var provider = CreateLocalizedStringProviderCore(languageTag);
-        while (provider is null)
+        if (provider is not null)
         {
-            var parentTag = new global::System.Globalization.CultureInfo(languageTag).Parent.Name;
-            if (string.IsNullOrWhiteSpace(parentTag))
-            {
-                break;
-            }
-            provider = CreateLocalizedStringProviderCore(parentTag);
+            return provider;
         }
+        var fallbackTag = global::dotnetCampus.Localizations.Helpers.LocalizationHelper.MatchWithFallback(languageTag, SupportedLanguageTags);
         if (provider is not null)
         {
             return provider;

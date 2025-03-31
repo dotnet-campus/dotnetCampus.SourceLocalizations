@@ -5,7 +5,7 @@ namespace LocalizationSample;
 
 internal class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var tags = Lang.SupportedLanguageTags;
         Console.WriteLine(string.Join(", ", tags));
@@ -18,7 +18,7 @@ internal class Program
             changed.PropertyChanged += ChangedOnPropertyChanged;
         }
 
-        Lang.SetCurrent("en");
+        await Lang.SetCurrent("en");
     }
 
     private static void ChangedOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
