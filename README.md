@@ -150,7 +150,13 @@ public static partial class LocalizedText
     {
         if (OperatingSystem.IsWindows())
         {
+            var language = GetUserProfileLanguage() ?? CultureInfo.CurrentUICulture.Name;
+            _ = SetCurrent(language);
             SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
+        }
+        else
+        {
+            // On other operating systems, the current language is automatically set to the current UI culture.
         }
         return appBuilder;
     }
@@ -160,22 +166,29 @@ public static partial class LocalizedText
     {
         if (e.Category is UserPreferenceCategory.Locale)
         {
-            // Retrieve the current language settings from the registry.
-            //
-            // Compared to CultureInfo.CurrentUICulture.Name or Win32 API's GetUserDefaultUILanguage, the registry can get updated standard language tags,
-            // and supports user-defined language preferences without needing to log off.
-            // Note: Even restarting the application will get the old settings; only logging off the system will get the new ones.
-            var languageNames = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64)
-                .OpenSubKey(@"Control Panel\International\User Profile", false)?
-                .GetValue("Languages", null) as IReadOnlyList<string>;
-            if (languageNames?[0] is { } name)
+            Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                Dispatcher.UIThread.InvokeAsync(async () =>
+                var language = GetUserProfileLanguage();
+                if (language is not null)
                 {
-                    await SetCurrent(name);
-                }, DispatcherPriority.Background);
-            }
+                    await SetCurrent(language);
+                }
+            }, DispatcherPriority.Background);
         }
+    }
+
+    [SupportedOSPlatform("windows")]
+    private static string? GetUserProfileLanguage()
+    {
+        // Retrieve the current language settings from the registry.
+        //
+        // Compared to CultureInfo.CurrentUICulture.Name or Win32 API's GetUserDefaultUILanguage, the registry can get updated standard language tags,
+        // and supports user-defined language preferences without needing to log off.
+        // Note: Even restarting the application will get the old settings; only logging off the system will get the new ones.
+        var languageNames = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64)
+            .OpenSubKey(@"Control Panel\International\User Profile", false)?
+            .GetValue("Languages", null) as IReadOnlyList<string>;
+        return languageNames?[0];
     }
 }
 ```
