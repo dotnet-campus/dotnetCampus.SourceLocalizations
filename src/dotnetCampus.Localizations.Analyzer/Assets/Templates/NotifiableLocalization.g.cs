@@ -18,8 +18,26 @@ partial class NotifiableLocalization
     /// 当前的可通知本地化字符串集实例。
     /// 此实例支持属性变更通知，适用于UI绑定场景。
     /// </summary>
-    private static NotifiableLocalizedValues _current = new NotifiableLocalizedValues(CreateLocalizedStringProvider("CURRENT_IETF_LANGUAGE_TAG"));
+    private static NotifiableLocalizedValues _current;
 
+    static NotifiableLocalization()
+    {
+        _current = new NotifiableLocalizedValues(CreateLocalizedStringProvider("CURRENT_IETF_LANGUAGE_TAG"));
+    }
+    
+    /// <summary>
+    /// 获取支持的语言标签。
+    /// </summary>
+    /// <remarks>
+    /// 由于项目中可以设置 LocalizationSupportsNonIetfLanguageTag 属性，所以不一定是 IETF 语言标签。
+    /// </remarks>
+    public static System.Collections.Immutable.ImmutableArray<string> SupportedLanguageTags { get; } =
+    [
+        // <FLAG2>
+        "en",
+        // </FLAG2>
+    ];
+    
     /// <summary>
     /// 获取默认的本地化字符串集。
     /// </summary>
@@ -36,19 +54,6 @@ partial class NotifiableLocalization
     /// 会通过 INotifyPropertyChanged 接口通知所有绑定的属性已变更。
     /// </remarks>
     public static ILocalizedValues Current => _current;
-
-    /// <summary>
-    /// 获取支持的语言标签。
-    /// </summary>
-    /// <remarks>
-    /// 由于项目中可以设置 LocalizationSupportsNonIetfLanguageTag 属性，所以不一定是 IETF 语言标签。
-    /// </remarks>
-    public static System.Collections.Immutable.ImmutableArray<string> SupportedLanguageTags { get; } =
-    [
-        // <FLAG2>
-        "en",
-        // </FLAG2>
-    ];
 
     /// <summary>
     /// 设置当前的本地化字符串集。
@@ -96,9 +101,7 @@ partial class NotifiableLocalization
         {
             return provider;
         }
-        throw new global::System.ArgumentException(
-            $"The language tag {languageTag} is not supported. Supported language tags are: {string.Join(", ", SupportedLanguageTags)}.",
-            nameof(languageTag));
+        return _default.LocalizedStringProvider;
     }
 
     /// <summary>

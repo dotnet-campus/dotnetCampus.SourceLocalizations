@@ -89,33 +89,13 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
 """;
     }
 
-    private static string ReplaceNamespaceAndTypeName(string sourceText, string rootNamespace, string? typeName)
+    private static string ReplaceNamespaceAndTypeName(string sourceText, string rootNamespace, string typeName)
     {
-        var sourceSpan = sourceText.AsSpan();
-
-        var namespaceKeywordIndex = sourceText.IndexOf("namespace", StringComparison.Ordinal);
-        var namespaceStartIndex = namespaceKeywordIndex + "namespace".Length + 1;
-        var namespaceEndIndex = sourceText.IndexOf(";", namespaceStartIndex, StringComparison.Ordinal);
-        var typeKeywordMatch = TemplateRegexes.TypeRegex.Match(sourceText);
-
-        if (typeName is null || !typeKeywordMatch.Success)
-        {
-            return string.Concat(
-                sourceSpan.Slice(0, namespaceStartIndex).ToString(),
-                rootNamespace,
-                sourceSpan.Slice(namespaceEndIndex, sourceSpan.Length - namespaceEndIndex).ToString()
-            );
-        }
-
-        var typeNameIndex = typeKeywordMatch.Groups[1].Index;
-        var typeNameLength = typeKeywordMatch.Groups[1].Length;
-
-        return string.Concat(
-            sourceSpan.Slice(0, namespaceStartIndex).ToString(),
-            rootNamespace,
-            sourceSpan.Slice(namespaceEndIndex, typeNameIndex - namespaceEndIndex).ToString(),
-            typeName,
-            sourceSpan.Slice(typeNameIndex + typeNameLength, sourceSpan.Length - typeNameIndex - typeNameLength).ToString()
-        );
+        return sourceText
+            .Replace("namespace dotnetCampus.Localizations.Assets.Templates;", $"namespace {rootNamespace};")
+            .Replace("partial class ImmutableLocalization", $"partial class {typeName}")
+            .Replace("partial class NotifiableLocalization", $"partial class {typeName}")
+            .Replace("static ImmutableLocalization()", $"static {typeName}()")
+            .Replace("static NotifiableLocalization()", $"static {typeName}()");
     }
 }
