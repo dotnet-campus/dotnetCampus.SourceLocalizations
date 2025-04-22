@@ -17,8 +17,13 @@ partial class ImmutableLocalization
     /// <summary>
     /// 当前的不可变本地化字符串集实例。
     /// </summary>
-    private static ImmutableLocalizedValues _current = GetOrCreateLocalizedValues("CURRENT_IETF_LANGUAGE_TAG");
+    private static ImmutableLocalizedValues _current;
 
+    static ImmutableLocalization()
+    {
+        _current = GetOrCreateLocalizedValues("CURRENT_IETF_LANGUAGE_TAG");
+    }
+    
     /// <summary>
     /// 获取默认的本地化字符串集。
     /// </summary>
@@ -123,9 +128,7 @@ partial class ImmutableLocalization
         {
             return provider;
         }
-        throw new global::System.ArgumentException(
-            $"The language tag {languageTag} is not supported. Supported language tags are: {string.Join(", ", SupportedLanguageTags)}.",
-            nameof(languageTag));
+        return _default.LocalizedStringProvider;
     }
 
     /// <summary>
