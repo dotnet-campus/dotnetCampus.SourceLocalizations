@@ -4,6 +4,8 @@ using INotifyPropertyChanged = global::System.ComponentModel.INotifyPropertyChan
 using LocalizedString = global::dotnetCampus.Localizations.LocalizedString;
 using PropertyChangedEventArgs = global::System.ComponentModel.PropertyChangedEventArgs;
 using PropertyChangedEventHandler = global::System.ComponentModel.PropertyChangedEventHandler;
+using System;
+using ArgumentNullException = global::System.ArgumentNullException;
 
 namespace dotnetCampus.Localizations.Assets.Templates;
 
