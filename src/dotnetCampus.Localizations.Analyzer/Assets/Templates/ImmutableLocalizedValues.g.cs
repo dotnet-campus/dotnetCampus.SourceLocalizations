@@ -3,6 +3,8 @@ using ILocalizedStringProvider = global::dotnetCampus.Localizations.ILocalizedSt
 using INotifyPropertyChanged = global::System.ComponentModel.INotifyPropertyChanged;
 using LocalizedString = global::dotnetCampus.Localizations.LocalizedString;
 using PropertyChangedEventHandler = global::System.ComponentModel.PropertyChangedEventHandler;
+using StringComparison = global::System.StringComparison;
+using System;
 
 namespace dotnetCampus.Localizations.Assets.Templates;
 

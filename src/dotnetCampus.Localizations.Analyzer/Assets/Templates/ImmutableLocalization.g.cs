@@ -1,5 +1,7 @@
 #nullable enable
 using global::dotnetCampus.Localizations;
+using StringComparison = global::System.StringComparison;
+using System;
 
 namespace dotnetCampus.Localizations.Assets.Templates;
 
