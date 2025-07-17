@@ -17,6 +17,10 @@ internal sealed class ImmutableLocalizedValues(ILocalizedStringProvider provider
     /// </summary>
     public ILocalizedStringProvider LocalizedStringProvider => provider;
 
+    public string IetfLanguageTag => LocalizedStringProvider.IetfLanguageTag;
+
+    public string this[string key] => LocalizedStringProvider[key];
+
     // <FLAG>
     // 在此处生成数状结构当前节点的本地化值。
     // public LocalizedString A1 => provider.Get0("A.A1");

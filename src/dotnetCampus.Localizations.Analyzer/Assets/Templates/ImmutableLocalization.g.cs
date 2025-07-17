@@ -25,7 +25,7 @@ partial class ImmutableLocalization
     {
         _current = GetOrCreateLocalizedValues("CURRENT_IETF_LANGUAGE_TAG");
     }
-    
+
     /// <summary>
     /// 获取默认的本地化字符串集。
     /// </summary>

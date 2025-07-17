@@ -6,11 +6,10 @@ namespace dotnetCampus.Localizations;
 /// <summary>
 /// 表示一个本地化字符串，可隐式转换为字符串。
 /// </summary>
-[DebuggerDisplay("{_key} = \"{_value}\"")]
+[DebuggerDisplay("{_key} = \"{Value}\"")]
 public readonly record struct LocalizedString
 {
     private readonly string _key;
-    private readonly string _value;
 
     /// <summary>
     /// 初始化一个新的本地化字符串实例。
@@ -20,20 +19,28 @@ public readonly record struct LocalizedString
     public LocalizedString(string key, string value)
     {
         _key = key;
-        _value = value;
+        Value = value;
     }
+
+    /// <summary>
+    /// 获取多语言值。
+    /// </summary>
+    /// <remarks>
+    /// 只有无参本地化字符串具有 <see cref="Value"/> 属性，可用于不可控的弱类型代码中，要求必须传入 string 实例时使用（如 XAML 绑定）。
+    /// </remarks>
+    public string Value { get; }
 
     /// <summary>
     /// 隐式转换为字符串。
     /// </summary>
     /// <param name="localizedString">要转换的本地化字符串。</param>
-    public static implicit operator string(LocalizedString localizedString) => localizedString._value;
+    public static implicit operator string(LocalizedString localizedString) => localizedString.Value;
 
     /// <summary>
     /// 将本地化字符串转换为字符串。
     /// </summary>
     /// <returns>转换的字符串。</returns>
-    public override string ToString() => _value;
+    public override string ToString() => Value;
 }
 
 /// <summary>

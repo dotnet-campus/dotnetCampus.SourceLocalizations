@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Globalization;
 
 namespace dotnetCampus.Localizations.Helpers;
@@ -23,7 +22,7 @@ public static class LocalizationHelper
     /// 获取用户首选的语言列表。
     /// </summary>
     /// <returns>用户首选的语言列表。</returns>
-    public static ImmutableArray<string> GetUserPreferredLanguages()
+    public static IReadOnlyList<string> GetUserPreferredLanguages()
     {
         // if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         // {
