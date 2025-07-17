@@ -29,7 +29,7 @@ public class LocalizationCodeTransformer
     /// 创建 <see cref="LocalizationCodeTransformer"/> 的新实例。
     /// </summary>
     /// <param name="fileModels">读取出来的所有语言项。</param>
-    public LocalizationCodeTransformer(ImmutableArray<LocalizationFileModel> fileModels)
+    public LocalizationCodeTransformer(IReadOnlyList<LocalizationFileModel> fileModels)
     {
         LocalizationItems =
         [

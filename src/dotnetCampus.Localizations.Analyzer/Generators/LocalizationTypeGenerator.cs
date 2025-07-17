@@ -74,7 +74,7 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
 {string.Join("\n", languageTags.Select(x => $"        \"{x}\","))}
 """;
 
-    private string GenerateCreateLocalizedValues(string defaultIetfTag, IReadOnlyDictionary<string, ImmutableArray<LocalizationFileModel>> models) => $"""
+    private string GenerateCreateLocalizedValues(string defaultIetfTag, IReadOnlyDictionary<string, IReadOnlyList<LocalizationFileModel>> models) => $"""
 {string.Join("\n", models.Select(x => ConvertModelToPatternMatch(defaultIetfTag, x.Key)))}
 """;
 
