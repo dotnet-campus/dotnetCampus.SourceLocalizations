@@ -18,6 +18,10 @@ internal sealed class NotifiableLocalizedValues(ILocalizedStringProvider provide
     /// </summary>
     public ILocalizedStringProvider LocalizedStringProvider { get; private set; } = provider;
 
+    public string IetfLanguageTag => LocalizedStringProvider.IetfLanguageTag;
+
+    public string this[string key] => LocalizedStringProvider[key];
+
     // <FLAG3>
     /// <summary>
     /// 在不改变 <see cref="LocalizedStringProvider"/> 实例的情况下，设置新的本地化字符串提供器，并通知所有的属性的变更。
