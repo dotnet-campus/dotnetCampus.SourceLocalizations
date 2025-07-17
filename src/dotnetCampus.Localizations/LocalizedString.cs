@@ -28,7 +28,7 @@ public readonly record struct LocalizedString
     /// <remarks>
     /// 只有无参本地化字符串具有 <see cref="Value"/> 属性，可用于不可控的弱类型代码中，要求必须传入 string 实例时使用（如 XAML 绑定）。
     /// </remarks>
-    private string Value { get; }
+    public string Value { get; }
 
     /// <summary>
     /// 隐式转换为字符串。
