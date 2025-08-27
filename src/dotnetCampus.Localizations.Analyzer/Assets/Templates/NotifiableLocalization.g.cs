@@ -24,20 +24,20 @@ partial class NotifiableLocalization
     {
         _current = new NotifiableLocalizedValues(CreateLocalizedStringProvider("CURRENT_IETF_LANGUAGE_TAG"));
     }
-    
+
     /// <summary>
     /// 获取支持的语言标签。
     /// </summary>
     /// <remarks>
     /// 由于项目中可以设置 LocalizationSupportsNonIetfLanguageTag 属性，所以不一定是 IETF 语言标签。
     /// </remarks>
-    public static System.Collections.Immutable.ImmutableArray<string> SupportedLanguageTags { get; } =
+    public static System.Collections.Generic.IReadOnlyList<string> SupportedLanguageTags { get; } =
     [
         // <FLAG2>
         "en",
         // </FLAG2>
     ];
-    
+
     /// <summary>
     /// 获取默认的本地化字符串集。
     /// </summary>
