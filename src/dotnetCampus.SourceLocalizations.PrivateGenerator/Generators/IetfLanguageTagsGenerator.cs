@@ -43,7 +43,7 @@ partial class IetfLanguageTags
     /// <summary>
     /// 包含所有 IETF 语言标签字符串常量的不可变哈希集合。
     /// </summary>
-    public static global::System.Collections.Frozen.FrozenSet<string> Set { get; } = 
+    public static global::System.Collections.Generic.HashSet<string> Set { get; } = 
     [
 {{string.Join("\n", GenerateDictionaryTagKeyValues(allCultures))}}
     ];
