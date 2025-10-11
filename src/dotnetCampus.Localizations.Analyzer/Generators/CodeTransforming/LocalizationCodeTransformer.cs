@@ -41,6 +41,7 @@ public class LocalizationCodeTransformer
                     _ => throw new NotSupportedException($"Unsupported localization file format: {x.FileFormat}"),
                 })))
                 .SelectMany(x => x.Reader.Read(x.Content))
+                .Reverse() // 后定义的项覆盖先定义的项
                 .Distinct(LocalizationItem.KeyEqualityComparer),
         ];
         Tree = LocalizationTreeNode.FromList(LocalizationItems);
