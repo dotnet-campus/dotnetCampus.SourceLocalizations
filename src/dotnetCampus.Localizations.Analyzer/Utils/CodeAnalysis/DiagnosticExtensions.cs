@@ -11,4 +11,12 @@ public static class DiagnosticExtensions
             null,
             message));
     }
+
+    public static void ReportLanguageKeyInconsistent(this SourceProductionContext context, string message)
+    {
+        context.ReportDiagnostic(Diagnostic.Create(
+            Diagnostics.DL0003_LanguageKeyInconsistent,
+            null,
+            message));
+    }
 }

@@ -1,12 +1,13 @@
-﻿using System.Collections.Immutable;
-using System.Text;
-using dotnetCampus.Localizations.Assets.Templates;
+﻿using dotnetCampus.Localizations.Assets.Templates;
 using dotnetCampus.Localizations.Generators.CodeTransforming;
 using dotnetCampus.Localizations.Generators.ModelProviding;
 using dotnetCampus.Localizations.Utils.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using System;
+using System.Collections.Immutable;
+using System.Text;
 
 namespace dotnetCampus.Localizations.Generators;
 
@@ -55,6 +56,9 @@ public class StringsGenerator : IIncrementalGenerator
             return;
         }
 
+
+        Dictionary<string, LocalizationCodeTransformer> transformers = new();
+
         foreach (var pair in allLocalizationModels)
         {
             var (ietfLanguageTag, group) = (pair.Key, pair.Value);
@@ -62,6 +66,7 @@ public class StringsGenerator : IIncrementalGenerator
             try
             {
                 var transformer = new LocalizationCodeTransformer(group);
+                transformers[ietfLanguageTag] = transformer;
 
                 var code = transformer.ToProviderCodeText(localizationType.Namespace, ietfLanguageTag);
                 context.AddSource($"Strings.{ietfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
@@ -82,7 +87,50 @@ public class StringsGenerator : IIncrementalGenerator
             {
                 context.ReportUnknownError(ex.Message);
             }
+        }
 
+        if (localizationType.EnsureKeysIdentical)
+        {
+            Compare(context, transformers);
         }
     }
+
+    /// <summary>
+    /// 比较多个语言的 Key 是否一致。
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="transformers"></param>
+    private static void Compare(SourceProductionContext context, Dictionary<string, LocalizationCodeTransformer> transformers)
+    {
+        if (transformers.Count <= 1)
+        {
+            return;
+        }
+
+        var langKeyCount = transformers.First().Value.LocalizationItems.Length;
+        foreach (var transformer in transformers.Skip(1))
+        {
+            if (transformer.Value.LocalizationItems.Length != langKeyCount)
+            {
+                var message = string.Join(", ", transformers.Select(t => $"{t.Key}:{t.Value.LocalizationItems.Length}"));
+                context.ReportLanguageKeyInconsistent($"Language keys count is not same. {message}");
+                return;
+            }
+        }
+
+        var keys = new HashSet<string>(transformers.First().Value.LocalizationItems.Select(i => i.Key));
+
+        foreach (var transformer in transformers.Skip(1))
+        {
+            foreach (var item in transformer.Value.LocalizationItems)
+            {
+                if (keys.Add(item.Key))
+                {
+                    var message = $"\"{item.Key}\" not exist in \"{transformers.First().Key}\"";
+                    context.ReportLanguageKeyInconsistent($"{message}");
+                }
+            }
+        }
+    }
+
 }
