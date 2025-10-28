@@ -25,4 +25,9 @@ public class LocalizedConfigurationAttribute : Attribute
     /// 是否支持在修改当前语言时，通知所有的语言项的变更。
     /// </summary>
     public bool SupportsNotification { get; init; }
+
+    /// <summary>
+    /// 指定是否确保所有语言文件中的键都是一致的。默认值为 false，不执行检查。如果是 true，则会在生成代码时检查所有语言文件中的键是否一致，如果不相同则会报错。
+    /// </summary>
+    public bool EnsureKeysIdentical { get; init; }
 }

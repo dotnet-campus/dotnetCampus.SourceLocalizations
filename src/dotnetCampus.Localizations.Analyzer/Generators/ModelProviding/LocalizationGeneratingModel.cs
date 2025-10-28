@@ -10,7 +10,9 @@ namespace dotnetCampus.Localizations.Generators.ModelProviding;
 /// <param name="DefaultLanguage">默认语言的 IETF 语言标签。</param>
 /// <param name="CurrentLanguage">当前语言的 IETF 语言标签。</param>
 /// <param name="SupportsNotification">是否支持在修改当前语言时，通知所有的语言项的变更。</param>
+/// <param name="EnsureKeysIdentical">指定是否确保所有语言文件中的键都一致。</param>
 public readonly record struct LocalizationGeneratingModel(
     string Namespace, string TypeName,
     string DefaultLanguage, string? CurrentLanguage,
-    bool SupportsNotification);
+    bool SupportsNotification,
+    bool EnsureKeysIdentical);

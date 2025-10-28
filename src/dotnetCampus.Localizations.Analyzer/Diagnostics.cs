@@ -34,6 +34,14 @@ public class Diagnostics
         DiagnosticSeverity.Error,
         true);
 
+    public static DiagnosticDescriptor DL0003_LanguageKeyInconsistent { get; } = new(
+        nameof(DLA003),
+        Localize(nameof(DLA003)),
+        Localize(nameof(DLA003_Message)),
+        Categories.RuntimeException,
+        DiagnosticSeverity.Error,
+        true);
+
     private static class Categories
     {
         /// <summary>

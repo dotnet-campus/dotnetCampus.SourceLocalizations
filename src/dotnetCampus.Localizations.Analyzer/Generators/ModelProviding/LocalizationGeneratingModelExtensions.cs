@@ -69,8 +69,9 @@ public static class LocalizationGeneratingModelExtensions
             var defaultLanguage = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.Default)).Value?.ToString()!;
             var currentLanguage = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.Current)).Value?.ToString();
             var supportsNotification = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.SupportsNotification)).Value is true;
+            var ensureKeysIdentical = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.EnsureKeysIdentical)).Value is true;
 
             // 创建模型时，分析器确保了这些值不为空。
-            return new LocalizationGeneratingModel(rootNamespace, typeName, defaultLanguage, currentLanguage, supportsNotification);
+            return new LocalizationGeneratingModel(rootNamespace, typeName, defaultLanguage, currentLanguage, supportsNotification, ensureKeysIdentical);
         });
 }
