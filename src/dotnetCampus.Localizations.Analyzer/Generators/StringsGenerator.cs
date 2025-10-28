@@ -58,22 +58,31 @@ public class StringsGenerator : IIncrementalGenerator
         foreach (var pair in allLocalizationModels)
         {
             var (ietfLanguageTag, group) = (pair.Key, pair.Value);
-            var transformer = new LocalizationCodeTransformer(group);
 
-            var code = transformer.ToProviderCodeText(localizationType.Namespace, ietfLanguageTag);
-            context.AddSource($"Strings.{ietfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
-
-            if (string.Equals(ietfLanguageTag, referenceLanguageTag, StringComparison.OrdinalIgnoreCase))
+            try
             {
-                var interfaceCode = transformer.ToInterfaceCodeText(localizationType);
-                context.AddSource($"{nameof(ILocalizedValues)}.g.cs", SourceText.From(interfaceCode, Encoding.UTF8));
+                var transformer = new LocalizationCodeTransformer(group);
 
-                var immutableImplementationCode = transformer.ToImplementationCodeText(localizationType, false);
-                context.AddSource("LocalizedValues.immutable.g.cs", SourceText.From(immutableImplementationCode, Encoding.UTF8));
+                var code = transformer.ToProviderCodeText(localizationType.Namespace, ietfLanguageTag);
+                context.AddSource($"Strings.{ietfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
 
-                var notifiableImplementationCode = transformer.ToImplementationCodeText(localizationType, true);
-                context.AddSource("LocalizedValues.notifiable.g.cs", SourceText.From(notifiableImplementationCode, Encoding.UTF8));
+                if (string.Equals(ietfLanguageTag, referenceLanguageTag, StringComparison.OrdinalIgnoreCase))
+                {
+                    var interfaceCode = transformer.ToInterfaceCodeText(localizationType);
+                    context.AddSource($"{nameof(ILocalizedValues)}.g.cs", SourceText.From(interfaceCode, Encoding.UTF8));
+
+                    var immutableImplementationCode = transformer.ToImplementationCodeText(localizationType, false);
+                    context.AddSource("LocalizedValues.immutable.g.cs", SourceText.From(immutableImplementationCode, Encoding.UTF8));
+
+                    var notifiableImplementationCode = transformer.ToImplementationCodeText(localizationType, true);
+                    context.AddSource("LocalizedValues.notifiable.g.cs", SourceText.From(notifiableImplementationCode, Encoding.UTF8));
+                }
             }
+            catch (Exception ex)
+            {
+                context.ReportUnknownError(ex.Message);
+            }
+
         }
     }
 }
